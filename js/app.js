@@ -45,6 +45,7 @@
         <div class="precio">${soles(p.precio)}</div>
         ${p.mayor ? `<div class="mayor">Por mayor: ${soles(p.mayor.precio)} desde ${p.mayor.desde} u.</div>` : ""}
         ${p.mayorConsultar ? `<div class="mayor">Precio especial por mayor desde ${p.mayorConsultar} u.</div>` : ""}
+        ${CONFIG.notaPreparacion ? `<div class="prep">⏱️ ${CONFIG.notaPreparacion}</div>` : ""}
         <button class="btn btn-primary agregar" data-add="${p.id}" ${p.agotado ? "disabled" : ""}>
           ${p.agotado ? "Agotado" : "Agregar"}</button>
         ${p.cotizar ? `<button class="btn btn-ghost cotizar-prod" data-cotizar-prod="${p.id}">Cotizar tamaño o cantidad</button>` : ""}
@@ -130,6 +131,7 @@
       `${conFactura() ? "Subtotal" : "Total"} productos: ${soles(t)}`,
       ...fact,
       `Adelanto 50% para separar: ${soles(totalFinal() * CONFIG.adelanto)}`,
+      "Tiempo de preparación y entrega: a coordinar",
       "Envío: a coordinar (a cuenta del cliente)",
       ...(datos.length ? ["", ...datos] : [])
     ].join("\n");
@@ -164,6 +166,7 @@
       ${p.mayor ? `<div class="mayor">Por mayor: ${soles(p.mayor.precio)} desde ${p.mayor.desde} u.</div>` : ""}
       ${p.mayorConsultar ? `<div class="mayor">Precio especial por mayor desde ${p.mayorConsultar} u.</div>` : ""}
       ${p.descripcion ? `<p>${p.descripcion}</p>` : ""}
+      ${CONFIG.notaPreparacion ? `<div class="prep">⏱️ ${CONFIG.notaPreparacion}</div>` : ""}
       <button class="btn btn-primary agregar" data-add="${p.id}" ${p.agotado ? "disabled" : ""}>${p.agotado ? "Agotado" : "Agregar al carrito"}</button>
       ${p.cotizar ? `<button class="btn btn-ghost cotizar-prod" data-cotizar-prod="${p.id}">Cotizar tamaño o cantidad</button>` : ""}`;
     $("#modal").hidden = false;

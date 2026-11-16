@@ -13,7 +13,8 @@ const CONFIG = {
   moneda: "S/",
   adelanto: 0.5, // 50% para separar el pedido
   igv: 0.18,     // se suma SOLO si el cliente pide factura (los precios de abajo van SIN IGV)
-  tiempoFabricacion: "3 a 5 días hábiles después del adelanto",
+  tiempoFabricacion: "el tiempo de preparación se coordina para la entrega, según el producto y la cantidad",
+  notaPreparacion: "Coordinar tiempo de preparación para la entrega", // aparece en TODOS los productos
   diaEntrega: "Sábados",
   distritosEntrega: ["Cercado de Lima", "San Miguel", "Pueblo Libre", "Jesús María", "Los Olivos", "San Martín de Porres"],
   redes: {
@@ -47,6 +48,36 @@ const CATEGORIAS = [
    img       -> foto en img/productos/<categoria>/ (ideal: cuadrada 800x800, .webp o .jpg)
    tendencia / temporada / nuevo / agotado -> true o false                          */
 const PRODUCTOS = [
+  {
+    id: "portapapel-papa-noel",
+    nombre: "Porta Papel Toalla Navideño · Papá Noel en la Chimenea",
+    categoria: "navidad",
+    precio: 190,
+    cotizar: true,
+    img: "img/productos/navidad/portapapel-papa-noel-1.webp",
+    fotos: [
+      "img/productos/navidad/portapapel-papa-noel-2.webp",
+      "img/productos/navidad/portapapel-papa-noel-3.jpg"
+    ],
+    descripcion: "Las botas de Papá Noel asomando por la chimenea nevada. Impresión 3D a colores en plástico, para rollo de papel toalla estándar. El toque divertido para tu cocina esta Navidad.",
+    tendencia: true, temporada: true, nuevo: true
+  },
+  {
+    id: "portapapel-galleta",
+    nombre: "Porta Papel Toalla Navideño · Galleta de Jengibre",
+    categoria: "navidad",
+    precio: 190,
+    cotizar: true,
+    img: "img/productos/navidad/portapapel-galleta-1.webp",
+    fotos: [
+      "img/productos/navidad/portapapel-galleta-2.jpg",
+      "img/productos/navidad/portapapel-galleta-3.jpg",
+      "img/productos/navidad/portapapel-galleta-4.jpg",
+      "img/productos/navidad/portapapel-galleta-5.jpg"
+    ],
+    descripcion: "Galleta de jengibre sobre bases con glaseado de nieve. Impresión 3D a colores en plástico, para rollo de papel toalla estándar. Piezas desmontables: fácil de guardar después de las fiestas.",
+    tendencia: true, temporada: true, nuevo: true
+  },
   {
     id: "esfera-nombre",
     nombre: "Esfera navideña con nombre",
