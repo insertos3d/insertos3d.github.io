@@ -42,8 +42,10 @@
         ${p.descripcion ? `<p class="desc">${p.descripcion}</p>` : ""}
         <div class="precio">${soles(p.precio)}</div>
         ${p.mayor ? `<div class="mayor">Por mayor: ${soles(p.mayor.precio)} desde ${p.mayor.desde} u.</div>` : ""}
+        ${p.mayorConsultar ? `<div class="mayor">Precio especial por mayor desde ${p.mayorConsultar} u.</div>` : ""}
         <button class="btn btn-primary agregar" data-add="${p.id}" ${p.agotado ? "disabled" : ""}>
           ${p.agotado ? "Agotado" : "Agregar"}</button>
+        ${p.cotizar ? `<button class="btn btn-ghost cotizar-prod" data-cotizar-prod="${p.id}">Cotizar tamaño o cantidad</button>` : ""}
       </div>
     </article>`;
   }
@@ -80,6 +82,7 @@
           <h4>${l.p.nombre}</h4>
           <small class="${l.esMayor ? "ok" : ""}">${soles(l.pu)} c/u${l.esMayor ? " · precio por mayor ✓" : ""}</small>
           ${l.p.mayor && !l.esMayor ? `<small>Por mayor desde ${l.p.mayor.desde} u.: ${soles(l.p.mayor.precio)}</small>` : ""}
+          ${l.p.mayorConsultar ? `<small class="${l.cant >= l.p.mayorConsultar ? "ok" : ""}">${l.cant >= l.p.mayorConsultar ? "✓ Aplica precio especial: lo confirmamos por WhatsApp" : `Precio especial desde ${l.p.mayorConsultar} u.`}</small>` : ""}
           <small><b>${soles(l.sub)}</b></small>
         </div>
         <div class="cant">
@@ -111,7 +114,8 @@
   // ---------- Mensaje de pedido ----------
   function mensaje() {
     const ls = lineas(); const t = total();
-    const det = ls.map((l) => `• ${l.cant} x ${l.p.nombre} — ${soles(l.pu)} c/u${l.esMayor ? " (por mayor)" : ""} = ${soles(l.sub)}`).join("\n");
+    const det = ls.map((l) => `• ${l.cant} x ${l.p.nombre} — ${soles(l.pu)} c/u${l.esMayor ? " (por mayor)" : ""} = ${soles(l.sub)}` +
+      (l.p.mayorConsultar && l.cant >= l.p.mayorConsultar ? "\n   ↳ Solicito precio especial por cantidad" : "")).join("\n");
     const nombre = $("#fNombre").value.trim(), dist = $("#fDistrito").value, notas = $("#fNotas").value.trim();
     const datos = [nombre && `Nombre: ${nombre}`, dist && `Distrito: ${dist}`, notas && `Notas: ${notas}`].filter(Boolean);
     const fact = conFactura() ? [
@@ -151,8 +155,12 @@
 
   // ---------- Eventos ----------
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor]");
+    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor],[data-cotizar-prod]");
     if (!t) return;
+    if (t.dataset.cotizarProd) {
+      const p = porId[t.dataset.cotizarProd];
+      abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar: *${p.nombre}* (precio regular ${soles(p.precio)})\n\nTamaño que necesito: \nCantidad: ${p.mayorConsultar ? `(precio especial desde ${p.mayorConsultar} u.)` : ""}\nColores: \nFecha que lo necesito: `);
+    }
     if (t.hasAttribute("data-cotizar-mayor")) {
       e.preventDefault();
       abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar un pedido POR MAYOR:\n\nProducto(s): \nCantidad aproximada: \nFecha que lo necesito: \n¿Requiere factura?: Sí / No`);

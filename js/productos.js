@@ -41,6 +41,8 @@ const CATEGORIAS = [
    categoria -> uno de los id de CATEGORIAS (navidad, llaveros, ...)
    precio    -> precio unitario en soles
    mayor     -> precio por mayor: desde cuántas unidades y a qué precio (o bórralo)
+   mayorConsultar -> en vez de precio fijo por mayor: "precio especial desde X u., consultar"
+   cotizar   -> true muestra el botón "Cotizar tamaño o cantidad" (abre WhatsApp)
    img       -> foto en img/productos/<categoria>/ (ideal: cuadrada 800x800, .webp o .jpg)
    tendencia / temporada / nuevo / agotado -> true o false                          */
 const PRODUCTOS = [
@@ -65,13 +67,15 @@ const PRODUCTOS = [
     tendencia: true, temporada: true
   },
   {
-    id: "nacimiento-minimalista",
-    nombre: "Nacimiento minimalista",
+    id: "misterio-nacimiento-3d",
+    nombre: "Misterio Nacimiento 3D",
     categoria: "religioso",
-    precio: 45,
-    img: "img/productos/religioso/nacimiento-minimalista.jpg",
-    descripcion: "Pieza decorativa de 15 cm. Disponible en blanco, dorado o madera.",
-    temporada: true
+    precio: 75,
+    mayorConsultar: 6,   // precio especial por cantidad: se cotiza desde 6 u.
+    cotizar: true,       // muestra botón "Cotizar tamaño o cantidad"
+    img: "img/productos/religioso/misterio-nacimiento-3d.jpg",
+    descripcion: "Impresión 3D a colores · 15 cm de altura · plástico. También en tamaño personalizado.",
+    tendencia: true, temporada: true, nuevo: true
   },
   {
     id: "llavero-nombre",
