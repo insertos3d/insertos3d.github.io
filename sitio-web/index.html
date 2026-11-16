@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insertos 3D · Tus Accesorios en 3D</title>
+  <meta name="description" content="Accesorios impresos en 3D: Navidad, llaveros, juegos de mesa, consolas y personalizados. Pedidos por WhatsApp. Precios por mayor.">
+  <!-- Vista previa al compartir el link en WhatsApp / Facebook -->
+  <meta property="og:title" content="Insertos 3D · Tus Accesorios en 3D">
+  <meta property="og:description" content="Arma tu pedido y envíalo por WhatsApp. Precios por mayor.">
+  <meta property="og:image" content="img/marca/logo-compartir.png">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="img/marca/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="top">
+  <a href="#" class="brand">
+    <img src="img/marca/logo.png" alt="Logo Insertos 3D" width="44" height="44">
+    <span><strong>Insertos 3D</strong><small>Tus Accesorios en 3D</small></span>
+  </a>
+  <button class="cart-btn" id="abrirCarrito" aria-label="Ver carrito">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM5.2 4l.6 3h14.7l-1.9 8H7.4L4.4 2H1v2h2.6"/></svg>
+    <span class="badge" id="contador">0</span>
+  </button>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="kicker">Impresión 3D hecha en Perú</p>
+    <h1>Tus Accesorios <span>en 3D</span></h1>
+    <p class="lead">Elige tus productos, arma tu carrito y envíanos el pedido por WhatsApp. Sin registrarte.</p>
+    <div class="hero-actions">
+      <a href="#catalogo" class="btn btn-primary" data-ir="tendencia">🔥 Ver tendencias</a>
+      <a href="#como-comprar" class="btn btn-ghost">¿Cómo comprar?</a>
+    </div>
+    <ul class="trust">
+      <li>📦 Ventas por mayor</li>
+      <li>🧾 Factura con RUC</li>
+      <li>💜 Yape / transferencia</li>
+      <li>🛵 Entregas semanales</li>
+    </ul>
+  </section>
+
+  <section class="destacado" aria-labelledby="t-tend">
+    <div class="sec-head">
+      <h2 id="t-tend">🔥 En tendencia</h2>
+      <a href="#catalogo" data-ir="tendencia">Ver todo</a>
+    </div>
+    <div class="carrusel" id="carruselTendencia"></div>
+  </section>
+
+  <section class="mayoreo" id="por-mayor" aria-labelledby="t-mayor">
+    <div>
+      <p class="kicker">Empresas · Eventos · Tiendas</p>
+      <h2 id="t-mayor">📦 Pedidos al por mayor</h2>
+      <p>Recuerdos para cumpleaños y eventos, detalles corporativos, regalos de fin de año, colegios y reventa. A mayor cantidad, mejor precio. Emitimos <b>factura</b> con RUC.</p>
+    </div>
+    <a href="#" class="btn btn-primary" data-cotizar-mayor>Cotizar por mayor</a>
+  </section>
+
+  <section id="catalogo" class="catalogo" aria-labelledby="t-cat">
+    <h2 id="t-cat">Catálogo</h2>
+    <div class="buscador">
+      <input type="search" id="buscar" placeholder="Buscar: llavero, navidad, nombre..." aria-label="Buscar productos">
+    </div>
+    <nav class="chips" id="chips" aria-label="Categorías"></nav>
+    <div class="grid" id="grid"></div>
+    <p class="vacio" id="vacio" hidden>No encontramos productos. ¿Buscas algo especial? <a href="#" data-cotizar>Cotiza un personalizado</a>.</p>
+  </section>
+
+  <section class="cotiza">
+    <h2>¿Tienes una idea?</h2>
+    <p>Hacemos piezas personalizadas: logos, nombres, recuerdos para eventos, repuestos y más.</p>
+    <a href="#" class="btn btn-primary" data-cotizar>Cotizar por WhatsApp</a>
+  </section>
+
+  <section id="como-comprar" class="info">
+    <h2>¿Cómo comprar?</h2>
+    <ol class="pasos">
+      <li><b>Arma tu carrito</b> con los productos que quieras.</li>
+      <li><b>Envíanos el pedido</b> por WhatsApp (o copia el mensaje).</li>
+      <li><b>Separa con el 50%</b> por Yape o transferencia para iniciar la fabricación.</li>
+      <li><b>Recibe tu pedido</b> y paga el saldo al entregar o antes del envío.</li>
+    </ol>
+
+    <div class="tarjetas">
+      <article>
+        <h3>💜 Pagos</h3>
+        <p>Yape y/o transferencia bancaria, previa coordinación. Los datos se envían por WhatsApp al confirmar.</p>
+      </article>
+      <article>
+        <h3>🛵 Envíos</h3>
+        <p>El envío se coordina y es <b>a cuenta del cliente</b>. Hacemos entregas semanales (<span id="diaEntrega"></span>) en: <span id="distritos"></span>. Coordinamos con motorizado o agencia.</p>
+      </article>
+      <article>
+        <h3>📦 Por mayor</h3>
+        <p>Los productos con etiqueta <b>“por mayor”</b> bajan de precio automáticamente al llegar a la cantidad indicada. Para empresas, eventos o reventa con más volumen, <a href="#" data-cotizar-mayor>pide tu cotización</a>.</p>
+      </article>
+      <article>
+        <h3>🧾 Factura</h3>
+        <p>Emitimos factura con RUC. Los precios publicados <b>no incluyen IGV</b>: si necesitas factura, se agrega el 18% de IGV al total. Márcalo en tu carrito.</p>
+      </article>
+      <article>
+        <h3>⏱️ Tiempo</h3>
+        <p>Cada pieza se fabrica a pedido: <span id="tiempo"></span>.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="faq">
+    <h2>Preguntas frecuentes</h2>
+    <details><summary>¿Necesito crear una cuenta?</summary><p>No. Solo armas tu carrito y nos envías el pedido por WhatsApp.</p></details>
+    <details><summary>¿Por qué se pide el 50% de adelanto?</summary><p>Cada producto se imprime a pedido. El adelanto confirma tu pedido y reserva tu turno de fabricación.</p></details>
+    <details><summary>¿Puedo elegir colores?</summary><p>Sí, indícalo en las notas del pedido. Los colores pueden variar ligeramente según el material disponible.</p></details>
+    <details><summary>¿Hacen cambios o devoluciones?</summary><p>Si el producto llega con fallas de fabricación, lo reponemos. Los productos personalizados no tienen devolución.</p></details>
+    <details><summary>¿Emiten factura?</summary><p>Sí, contamos con RUC del rubro. Los precios publicados no incluyen IGV; si necesitas factura se agrega el 18% de IGV. Marca la opción “Necesito factura” en el carrito e indica tu RUC y razón social.</p></details>
+    <details><summary>¿Venden por mayor?</summary><p>Sí. Varios productos tienen precio por mayor automático en el carrito, y para pedidos grandes (empresas, eventos, colegios, reventa) hacemos cotizaciones especiales. <a href="#" data-cotizar-mayor>Cotiza aquí</a>.</p></details>
+  </section>
+
+  <section class="creciendo">
+    <h2>🚀 Estamos creciendo</h2>
+    <p>Insertos 3D es un emprendimiento peruano en desarrollo. Ya contamos con RUC y emitimos factura, y atendemos cada pedido de forma directa y personal por WhatsApp. Seguimos trabajando para darte más formalidad: más medios de pago y nuevos canales de atención.</p>
+    <p>Gracias por confiar en nosotros desde el inicio 💜</p>
+  </section>
+</main>
+
+<footer class="pie">
+  <img src="img/marca/logo.png" alt="" width="56" height="56">
+  <p><strong>Insertos 3D</strong> · Tus Accesorios en 3D</p>
+  <div class="redes">
+    <a id="lnkFb" target="_blank" rel="noopener">Facebook</a>
+    <a id="lnkIg" target="_blank" rel="noopener">Instagram</a>
+    <a id="lnkTt" target="_blank" rel="noopener">TikTok</a>
+    <a href="#" data-cotizar>WhatsApp</a>
+    <a href="#por-mayor">Ventas por mayor</a>
+  </div>
+  <small>Precios en soles, no incluyen IGV (se agrega 18% solo si solicitas factura). Imágenes referenciales.</small>
+</footer>
+
+<!-- Barra inferior en celular -->
+<button class="barra-carrito" id="barraCarrito" hidden>
+  <span>🛒 <b id="barraCant">0</b> productos</span>
+  <span>Ver pedido · <b id="barraTotal">S/ 0.00</b></span>
+</button>
+
+<!-- Carrito -->
+<div class="overlay" id="overlay" hidden></div>
+<aside class="carrito" id="carrito" aria-label="Tu pedido" aria-hidden="true">
+  <div class="carrito-head">
+    <h2>Tu pedido</h2>
+    <button class="cerrar" id="cerrarCarrito" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="carrito-items" id="items"></div>
+  <div class="carrito-form" id="formPedido">
+    <label>Tu nombre <input id="fNombre" autocomplete="name" placeholder="Opcional"></label>
+    <label>Distrito / ciudad
+      <select id="fDistrito"></select>
+    </label>
+    <label>Notas (colores, nombres, fecha) <textarea id="fNotas" rows="2" placeholder="Ej: esferas rojas con los nombres Ana y Luis"></textarea></label>
+    <label class="check"><input type="checkbox" id="fFactura"> Necesito factura (+18% IGV)</label>
+    <div class="factura-campos" id="facturaCampos" hidden>
+      <label>RUC <input id="fRuc" inputmode="numeric" maxlength="11" placeholder="11 dígitos"></label>
+      <label>Razón social <input id="fRazon" placeholder="Nombre de la empresa"></label>
+    </div>
+  </div>
+  <div class="carrito-foot" id="pie">
+    <div class="fila"><span>Subtotal productos</span><b id="total">S/ 0.00</b></div>
+    <div class="fila igv" id="filaIgv" hidden><span>IGV 18%</span><b id="igv">S/ 0.00</b></div>
+    <div class="fila" id="filaTotalFact" hidden><span>Total con IGV</span><b id="totalFact">S/ 0.00</b></div>
+    <div class="fila adelanto"><span>Adelanto 50% para separar</span><b id="adelanto">S/ 0.00</b></div>
+    <p class="nota mayor-nota">📦 ¿Compras en cantidad? <a href="#" data-cotizar-mayor>Pide precio por mayor</a></p>
+    <p class="nota">Envío a coordinar, a cuenta del cliente.</p>
+    <button class="btn btn-wsp" id="enviarWsp">Enviar pedido por WhatsApp</button>
+    <button class="btn btn-ghost" id="copiar">Copiar mensaje del pedido</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/productos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
