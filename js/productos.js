@@ -43,6 +43,7 @@ const CATEGORIAS = [
    mayor     -> precio por mayor: desde cuántas unidades y a qué precio (o bórralo)
    mayorConsultar -> en vez de precio fijo por mayor: "precio especial desde X u., consultar"
    cotizar   -> true muestra el botón "Cotizar tamaño o cantidad" (abre WhatsApp)
+   fotos     -> lista de fotos extra para la galería (opcional)
    img       -> foto en img/productos/<categoria>/ (ideal: cuadrada 800x800, .webp o .jpg)
    tendencia / temporada / nuevo / agotado -> true o false                          */
 const PRODUCTOS = [
@@ -74,6 +75,11 @@ const PRODUCTOS = [
     mayorConsultar: 6,   // precio especial por cantidad: se cotiza desde 6 u.
     cotizar: true,       // muestra botón "Cotizar tamaño o cantidad"
     img: "img/productos/religioso/misterio-nacimiento-3d.jpg",
+    fotos: [             // fotos extra: se ven al tocar la imagen
+      "img/productos/religioso/misterio-nacimiento-3d-2.webp",
+      "img/productos/religioso/misterio-nacimiento-3d-3.webp",
+      "img/productos/religioso/misterio-nacimiento-3d-4.webp"
+    ],
     descripcion: "Impresión 3D a colores · 15 cm de altura · plástico. También en tamaño personalizado.",
     tendencia: true, temporada: true, nuevo: true
   },

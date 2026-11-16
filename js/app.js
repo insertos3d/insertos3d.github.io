@@ -35,8 +35,10 @@
       p.nuevo ? '<span class="tag new">Nuevo</span>' : "",
       p.agotado ? '<span class="tag">Agotado</span>' : ""
     ].join("");
+    const nFotos = 1 + (p.fotos ? p.fotos.length : 0);
     return `<article class="card">
-      <div class="foto">${foto(p)}<div class="etiquetas">${tags}</div></div>
+      <div class="foto" data-ver="${p.id}" role="button" tabindex="0" aria-label="Ver fotos de ${p.nombre}">${foto(p)}<div class="etiquetas">${tags}</div>
+        ${nFotos > 1 ? `<span class="n-fotos">📷 ${nFotos}</span>` : ""}</div>
       <div class="cuerpo">
         <h3>${p.nombre}</h3>
         ${p.descripcion ? `<p class="desc">${p.descripcion}</p>` : ""}
@@ -149,14 +151,45 @@
     clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("ver"), 2400);
   }
 
+  // ---------- Galería de fotos del producto ----------
+  function verProducto(id) {
+    const p = porId[id]; if (!p) return;
+    const imgs = [p.img, ...(p.fotos || [])];
+    $("#galeria").innerHTML = imgs.map((src, i) => `<img src="${src}" alt="${p.nombre} foto ${i + 1}">`).join("");
+    $("#galeria").scrollLeft = 0;
+    $("#puntos").innerHTML = imgs.length > 1 ? imgs.map((_, i) => `<button data-punto="${i}" aria-label="Foto ${i + 1}" class="${i ? "" : "activo"}"></button>`).join("") : "";
+    $("#modalInfo").innerHTML = `
+      <h3>${p.nombre}</h3>
+      <div class="precio">${soles(p.precio)}</div>
+      ${p.mayor ? `<div class="mayor">Por mayor: ${soles(p.mayor.precio)} desde ${p.mayor.desde} u.</div>` : ""}
+      ${p.mayorConsultar ? `<div class="mayor">Precio especial por mayor desde ${p.mayorConsultar} u.</div>` : ""}
+      ${p.descripcion ? `<p>${p.descripcion}</p>` : ""}
+      <button class="btn btn-primary agregar" data-add="${p.id}" ${p.agotado ? "disabled" : ""}>${p.agotado ? "Agotado" : "Agregar al carrito"}</button>
+      ${p.cotizar ? `<button class="btn btn-ghost cotizar-prod" data-cotizar-prod="${p.id}">Cotizar tamaño o cantidad</button>` : ""}`;
+    $("#modal").hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function cerrarModal() { $("#modal").hidden = true; document.body.style.overflow = ""; }
+  $("#galeria").addEventListener("scroll", () => {
+    const g = $("#galeria"), i = Math.round(g.scrollLeft / g.clientWidth);
+    document.querySelectorAll("#puntos button").forEach((b, j) => b.classList.toggle("activo", i === j));
+  });
+  $("#puntos").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-punto]"); if (!b) return;
+    const g = $("#galeria"); g.scrollTo({ left: g.clientWidth * +b.dataset.punto, behavior: "smooth" });
+  });
+  $("#cerrarModal").addEventListener("click", cerrarModal);
+  $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") cerrarModal(); });
+
   // ---------- Abrir / cerrar carrito ----------
   function abrir() { $("#carrito").classList.add("abierto"); $("#carrito").setAttribute("aria-hidden", "false"); $("#overlay").hidden = false; }
   function cerrar() { $("#carrito").classList.remove("abierto"); $("#carrito").setAttribute("aria-hidden", "true"); $("#overlay").hidden = true; }
 
   // ---------- Eventos ----------
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor],[data-cotizar-prod]");
+    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor],[data-cotizar-prod],[data-ver]");
     if (!t) return;
+    if (t.dataset.ver) verProducto(t.dataset.ver);
     if (t.dataset.cotizarProd) {
       const p = porId[t.dataset.cotizarProd];
       abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar: *${p.nombre}* (precio regular ${soles(p.precio)})\n\nTamaño que necesito: \nCantidad: ${p.mayorConsultar ? `(precio especial desde ${p.mayorConsultar} u.)` : ""}\nColores: \nFecha que lo necesito: `);
@@ -179,7 +212,10 @@
   $("#barraCarrito").addEventListener("click", abrir);
   $("#cerrarCarrito").addEventListener("click", cerrar);
   $("#overlay").addEventListener("click", cerrar);
-  document.addEventListener("keydown", (e) => e.key === "Escape" && cerrar());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { cerrar(); cerrarModal(); }
+    if (e.key === "Enter" && e.target.dataset && e.target.dataset.ver) verProducto(e.target.dataset.ver);
+  });
   $("#enviarWsp").addEventListener("click", () => cantidad() && abrirWsp(mensaje()));
   $("#copiar").addEventListener("click", () => cantidad() && copiar(mensaje()));
 
