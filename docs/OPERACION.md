@@ -1,7 +1,7 @@
 # Operación diaria
 
 ## Entrar al panel
-https://insertos3d.github.io/admin.html → correo y contraseña del administrador.
+https://insertos3d.com/admin.html → correo y contraseña del administrador.
 
 ## Productos
 | Quiero… | Cómo |

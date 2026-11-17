@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.6.0] - 2026-11-17
+### Cambiado
+- Dominio propio **insertos3d.com** (Cloudflare Registrar, DNS only → GitHub Pages). `insertos3d.github.io` redirige.
+- Open Graph, canonical, imagen para compartir y documentación con el nuevo dominio.
+
 ## [1.5.0] - 2026-11-17
 ### Cambiado
 - Carrito: productos siempre visibles; “Tus datos” plegable con resumen; total y botones fijos abajo;

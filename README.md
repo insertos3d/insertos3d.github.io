@@ -3,8 +3,8 @@
 > **Tus Accesorios en 3D** — catálogo con carrito sin registro, pedidos por WhatsApp,
 > panel de administrador y métricas por producto y por publicación.
 
-- **Web pública:** https://insertos3d.github.io
-- **Panel de administrador:** https://insertos3d.github.io/admin.html
+- **Web pública:** https://insertos3d.com
+- **Panel de administrador:** https://insertos3d.com/admin.html
 - **Hosting:** GitHub Pages (estático, gratis) · **Datos:** Supabase (Postgres + Auth + Storage)
 
 ---
