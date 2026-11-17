@@ -23,7 +23,24 @@
     .tab.activo { background: #fff; color: #0b0b0d; font-weight: 600; }
     .barra { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
     .barra input, .barra select { width: auto; flex: 1 1 160px; }
-    .fila-p { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+    .fila-p { display: grid; grid-template-columns: 32px 56px 1fr auto; gap: 10px; align-items: center; padding: 12px 6px 12px 0; border-bottom: 1px solid var(--borde); transition: background .15s; }
+    .asa { touch-action: none; cursor: grab; width: 32px; height: 48px; border: 0; background: transparent; color: var(--texto-2); font-size: 1.4rem; line-height: 1; border-radius: 8px; -webkit-user-select: none; user-select: none; }
+    .asa:hover { background: var(--bg-suave); color: var(--texto); }
+    .fila-p.presionando { background: var(--bg-suave); }
+    .fila-p.arrastrando { background: var(--bg-suave); outline: 2px solid var(--verde); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.5); position: relative; z-index: 2; }
+    .fila-p.arrastrando .asa { cursor: grabbing; color: var(--verde); }
+    body.ordenando { -webkit-user-select: none; user-select: none; cursor: grabbing; }
+    .acciones-fila { display: flex; gap: 6px; align-items: center; }
+    .btn-mini { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--borde); background: transparent; color: var(--texto); font-size: 1.1rem; cursor: pointer; }
+    .btn-mini:hover { background: var(--bg-suave); }
+    .filtros { border: 1px solid var(--borde); border-radius: var(--radio); padding: 12px; margin: 0 0 12px; display: grid; gap: 10px; background: var(--tarjeta); }
+    .grupo { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .g-tit { font-size: .72rem; color: var(--texto-2); text-transform: uppercase; letter-spacing: .06em; min-width: 72px; }
+    .fchip { font: inherit; font-size: .8rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; }
+    .fchip.activo { background: #fff; color: #0b0b0d; border-color: #fff; font-weight: 600; }
+    .filtros-pie { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .lnk { border: 0; background: none; color: var(--marca); font: inherit; font-size: .8rem; cursor: pointer; }
+    @media (max-width: 560px) { .fila-p { grid-template-columns: 28px 48px 1fr; } .fila-p .mini { width: 48px; height: 48px; } .acciones-fila { grid-column: 2 / -1; justify-content: flex-end; } }
     .fila-p.off { opacity: .5; }
     .fila-p .mini { width: 56px; height: 56px; border-radius: 10px; background: var(--bg-suave); overflow: hidden; display: grid; place-items: center; }
     .fila-p .mini img { width: 100%; height: 100%; object-fit: cover; }
@@ -98,16 +115,33 @@
       <div class="barra">
         <input type="search" id="pBuscar" placeholder="Buscar producto...">
         <select id="pCat"></select>
-        <select id="pEstado">
-          <option value="">Todos</option><option value="on">Visibles</option><option value="off">Ocultos</option>
-        </select>
         <button class="btn btn-primary" id="nuevo">+ Nuevo producto</button>
+      </div>
+      <div class="filtros" aria-label="Filtros">
+        <div class="grupo" role="group" aria-label="Estado">
+          <span class="g-tit">Estado</span>
+          <button class="fchip activo" data-estado="">Todos</button>
+          <button class="fchip" data-estado="on">👁 Visibles</button>
+          <button class="fchip" data-estado="off">🙈 Ocultos</button>
+        </div>
+        <div class="grupo" role="group" aria-label="Etiquetas">
+          <span class="g-tit">Etiquetas</span>
+          <button class="fchip" data-tag="tendencia">🔥 Tendencia</button>
+          <button class="fchip" data-tag="temporada">⭐ Temporada</button>
+          <button class="fchip" data-tag="nuevo">✨ Nuevo</button>
+          <button class="fchip" data-tag="agotado">⛔ Agotado</button>
+          <button class="fchip" data-tag="sinfoto">📷 Sin foto</button>
+        </div>
+        <div class="filtros-pie">
+          <span class="nota" id="pConteo"></span>
+          <button class="lnk" id="pLimpiar" hidden>✕ Limpiar filtros</button>
+        </div>
       </div>
       <div id="importar" class="kpi" hidden>
         <p style="margin:0 0 10px">La base de datos está vacía. ¿Copiamos aquí los productos que hoy tiene la web?</p>
         <button class="btn btn-primary" id="btnImportar">Importar catálogo actual</button>
       </div>
-      <p class="nota">Toca las etiquetas para activarlas o desactivarlas. Los cambios se ven en la web al recargarla. 👁 vistas · 💬 clics a WhatsApp (últimos 30 días).</p>
+      <p class="nota">Toca las etiquetas para activarlas o desactivarlas. <b>Ordenar:</b> arrastra el asa ⠿ (en celular: mantén presionado y desliza) o usa ⤒ para subir al primer lugar. Arriba = aparece primero en la web. 👁 vistas · 💬 clics a WhatsApp (últimos 30 días).</p>
       <div id="lista"></div>
     </section>
 

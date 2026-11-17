@@ -2,6 +2,17 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.4.0] - 2026-11-17
+### Agregado
+- Panel: ordenar productos arrastrando (mouse y mantener-presionado en celular) y botón ⤒ primer lugar.
+- Panel: filtros por estado y etiquetas (combinables), contador y “Limpiar filtros”.
+- Migración `reordenar_productos` (función solo admin).
+### Cambiado
+- Productos nuevos se crean en primer lugar; miniaturas rotas muestran 📦.
+- Marca de agua: miniatura arriba a la derecha en tarjetas; sobre la foto en galería y zoom.
+### Seguridad
+- Contraseñas: mínimo 10 caracteres con minúscula, mayúscula y número.
+
 ## [1.3.0] - 2026-11-17
 ### Agregado
 - Sección “Explora modelos” con MakerWorld (casi 3 millones de modelos) y cotización por WhatsApp.

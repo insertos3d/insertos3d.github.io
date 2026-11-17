@@ -72,28 +72,135 @@
   }
 
   $("#pCat").innerHTML = `<option value="">Todas las categorías</option>` + CATS.map((c) => `<option value="${c.id}">${c.icono} ${c.nombre}</option>`).join("");
-  ["#pBuscar", "#pCat", "#pEstado"].forEach((s) => $(s).addEventListener("input", pintarLista));
+  ["#pBuscar", "#pCat"].forEach((s) => $(s).addEventListener("input", pintarLista));
+
+  // ---------- Filtros (estado + etiquetas, combinables) ----------
+  let estadoFiltro = "";            // "" | "on" | "off"
+  const tagsFiltro = new Set();     // tendencia, temporada, nuevo, agotado, sinfoto (se combinan con Y)
+  document.querySelectorAll("[data-estado]").forEach((b) => b.addEventListener("click", () => {
+    estadoFiltro = b.dataset.estado;
+    document.querySelectorAll("[data-estado]").forEach((x) => x.classList.toggle("activo", x === b));
+    pintarLista();
+  }));
+  document.querySelectorAll("[data-tag]").forEach((b) => b.addEventListener("click", () => {
+    const t = b.dataset.tag;
+    tagsFiltro.has(t) ? tagsFiltro.delete(t) : tagsFiltro.add(t);
+    b.classList.toggle("activo", tagsFiltro.has(t));
+    pintarLista();
+  }));
+  $("#pLimpiar").addEventListener("click", () => {
+    estadoFiltro = ""; tagsFiltro.clear(); $("#pBuscar").value = ""; $("#pCat").value = "";
+    document.querySelectorAll("[data-estado]").forEach((x) => x.classList.toggle("activo", x.dataset.estado === ""));
+    document.querySelectorAll("[data-tag]").forEach((x) => x.classList.remove("activo"));
+    pintarLista();
+  });
+  const cumpleTag = (p, t) => (t === "sinfoto" ? !p.img : !!p[t]);
+  function filtrados() {
+    const q = $("#pBuscar").value.trim().toLowerCase(), cat = $("#pCat").value;
+    return productos.filter((p) =>
+      (!q || (p.nombre + " " + p.id).toLowerCase().includes(q)) &&
+      (!cat || p.categoria === cat) &&
+      (!estadoFiltro || (estadoFiltro === "on" ? p.activo : !p.activo)) &&
+      [...tagsFiltro].every((t) => cumpleTag(p, t)));
+  }
 
   const TOGGLES = [["activo", "Visible"], ["tendencia", "🔥 Tendencia"], ["temporada", "⭐ Temporada"], ["nuevo", "Nuevo"], ["agotado", "Agotado"]];
   function pintarLista() {
-    const q = $("#pBuscar").value.trim().toLowerCase(), cat = $("#pCat").value, est = $("#pEstado").value;
-    const lista = productos.filter((p) => (!q || p.nombre.toLowerCase().includes(q)) && (!cat || p.categoria === cat) &&
-      (!est || (est === "on" ? p.activo : !p.activo)));
+    const lista = filtrados();
+    const hayFiltro = !!(estadoFiltro || tagsFiltro.size || $("#pBuscar").value.trim() || $("#pCat").value);
+    $("#pConteo").textContent = `Mostrando ${lista.length} de ${productos.length} productos`;
+    $("#pLimpiar").hidden = !hayFiltro;
     $("#lista").innerHTML = lista.map((p) => {
       const m = met30[p.id] || {};
-      return `<div class="fila-p ${p.activo ? "" : "off"}">
-        <div class="mini">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : "📦"}</div>
+      return `<div class="fila-p ${p.activo ? "" : "off"}" data-id="${esc(p.id)}">
+        <button class="asa" data-asa aria-label="Arrastrar para ordenar ${esc(p.nombre)}" title="Arrastra para ordenar">⠿</button>
+        <div class="mini">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy" onerror="this.replaceWith('📦')">` : "📦"}</div>
         <div>
           <h4>${esc(p.nombre)}</h4>
           <small><code>${esc(p.id)}</code> · ${esc(nombreCat(p.categoria))} · ${soles(p.precio)} · 👁 ${m.vista || 0} · 💬 ${(m.whatsapp || 0) + (m.cotizar || 0)}</small>
           <div class="toggles">${TOGGLES.map(([k, t]) =>
             `<button class="tg ${p[k] ? "on" : ""} ${k === "agotado" ? "rojo" : ""}" data-tg="${k}" data-id="${esc(p.id)}">${t}</button>`).join("")}</div>
         </div>
-        <button class="btn btn-ghost" data-editar="${esc(p.id)}" style="padding:8px 12px">Editar</button>
+        <div class="acciones-fila">
+          <button class="btn-mini" data-arriba="${esc(p.id)}" title="Subir al primer lugar" aria-label="Subir al primer lugar">⤒</button>
+          <button class="btn btn-ghost" data-editar="${esc(p.id)}" style="padding:8px 12px">Editar</button>
+        </div>
       </div>`;
     }).join("") || `<p class="nota">No hay productos con ese filtro.</p>`;
   }
+
+  // ---------- Ordenar (arrastrar y soltar con mouse o dedo) ----------
+  // Guarda el orden completo: los productos visibles en la lista (con filtros) se reubican
+  // en las posiciones que ya ocupaban dentro del catálogo; el resto no se mueve.
+  async function guardarOrden(idsVisibles) {
+    const set = new Set(idsVisibles);
+    const completo = productos.map((p) => p.id);
+    const huecos = completo.map((id, i) => (set.has(id) ? i : -1)).filter((i) => i >= 0);
+    huecos.forEach((pos, k) => { completo[pos] = idsVisibles[k]; });
+    await enviarOrden(completo);
+  }
+  async function enviarOrden(ids) {
+    const { error } = await sb.rpc("reordenar_productos", { ids });
+    if (error) { aviso("No se pudo guardar el orden"); }
+    else { aviso("Orden guardado ✓"); }
+    await cargarProductos(); pintarLista();
+  }
+
+  let drag = null, espera = null;
+  const filas = () => [...document.querySelectorAll("#lista .fila-p")];
+  function iniciarArrastre(fila, asa, pointerId) {
+    drag = { fila, asa, orden0: filas().map((f) => f.dataset.id).join() };
+    fila.classList.remove("presionando");
+    fila.classList.add("arrastrando");
+    document.body.classList.add("ordenando");
+    try { asa.setPointerCapture(pointerId); } catch (e) {}
+    if (navigator.vibrate) navigator.vibrate(25);
+  }
+  $("#lista").addEventListener("pointerdown", (e) => {
+    const asa = e.target.closest("[data-asa]"); if (!asa) return;
+    e.preventDefault();
+    const fila = asa.closest(".fila-p");
+    if (e.pointerType === "mouse") return iniciarArrastre(fila, asa, e.pointerId);
+    // Celular / tablet: mantener presionado 250 ms para empezar a mover
+    fila.classList.add("presionando");
+    espera = { fila, x: e.clientX, y: e.clientY, t: setTimeout(() => { espera = null; iniciarArrastre(fila, asa, e.pointerId); }, 250) };
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (espera && Math.hypot(e.clientX - espera.x, e.clientY - espera.y) > 10) {
+      clearTimeout(espera.t); espera.fila.classList.remove("presionando"); espera = null;
+    }
+    if (!drag) return;
+    e.preventDefault();
+    // ¿Sobre qué fila está el puntero? (ignora la que se arrastra)
+    const bajo = document.elementsFromPoint(e.clientX, e.clientY)
+      .map((el) => el.closest && el.closest("#lista .fila-p")).find((f) => f && f !== drag.fila);
+    if (bajo) {
+      const r = bajo.getBoundingClientRect();
+      const antes = e.clientY < r.top + r.height / 2;
+      bajo.parentNode.insertBefore(drag.fila, antes ? bajo : bajo.nextSibling);
+    }
+    // Desplazamiento automático cerca de los bordes de la pantalla
+    if (e.clientY < 90) window.scrollBy(0, -14);
+    else if (e.clientY > innerHeight - 90) window.scrollBy(0, 14);
+  }, { passive: false });
+  function soltar() {
+    if (espera) { clearTimeout(espera.t); espera.fila.classList.remove("presionando"); espera = null; }
+    if (!drag) return;
+    const { fila, orden0 } = drag; drag = null;
+    fila.classList.remove("arrastrando"); document.body.classList.remove("ordenando");
+    const ids = filas().map((f) => f.dataset.id);
+    if (ids.join() !== orden0) guardarOrden(ids);
+  }
+  document.addEventListener("pointerup", soltar);
+  document.addEventListener("pointercancel", soltar);
+
   $("#lista").addEventListener("click", async (e) => {
+    const arriba = e.target.closest("[data-arriba]");
+    if (arriba) {
+      const id = arriba.dataset.arriba;
+      if (productos[0] && productos[0].id === id) return aviso("Ya está en el primer lugar");
+      return enviarOrden([id, ...productos.map((p) => p.id).filter((x) => x !== id)]);
+    }
     const tg = e.target.closest("[data-tg]");
     if (tg) {
       const p = productos.find((x) => x.id === tg.dataset.id), k = tg.dataset.tg, val = !p[k];
@@ -150,7 +257,8 @@
     ["tendencia", "temporada", "nuevo", "agotado", "cotizar"].forEach((k) => {
       $("#e" + k[0].toUpperCase() + k.slice(1)).checked = p ? !!p[k] : k === "nuevo" || k === "cotizar";
     });
-    $("#eOrden").value = p ? p.orden : 100;
+    // Nuevo producto: aparece primero (orden menor que el actual primero)
+    $("#eOrden").value = p ? p.orden : (productos.length ? Math.min(...productos.map((x) => x.orden)) - 10 : 10);
     fotosEd = p ? [p.img, ...(p.fotos || [])].filter(Boolean) : [];
     $("#eBorrar").hidden = !p;
     $("#eError").textContent = ""; $("#eSubiendo").textContent = "";

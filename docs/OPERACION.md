@@ -11,9 +11,13 @@ https://insertos3d.github.io/admin.html → correo y contraseña del administrad
 | Cambiar precio, descripción, precio por mayor | **Editar** → Guardar |
 | Cambiar fotos | **Editar** → 📷 Subir fotos · ★ = foto principal · ✕ = quitar |
 | Crear producto | **+ Nuevo producto** |
-| Cambiar el orden | **Editar** → *Orden* (menor = primero) |
+| Cambiar el orden | Arrastra el asa **⠿** (PC: con el mouse · celular: mantén presionado ¼ s y desliza). **⤒** = primer lugar |
+| Ver solo ciertos productos | Panel de filtros: **Estado** (Visibles/Ocultos) + **Etiquetas** (Tendencia, Temporada, Nuevo, Agotado, Sin foto), combinables con categoría y búsqueda |
 | Borrar definitivamente | **Editar** → Eliminar (preferir ocultar) |
 | Ver o cambiar el **ID** | Se muestra en la lista (`código`). En **Editar** → *ID del producto*. Al crear, se genera del nombre |
+
+**Orden:** el primero de la lista es el primero en la web. Los productos nuevos se crean arriba.
+Con un filtro activo, arrastrar reordena solo los productos visibles; el resto mantiene su lugar.
 
 **ID del producto:** identificador legible y único (`porta-papel-galleta`), usado en los links `?p=<id>` y en las métricas.
 Cambiarlo rompe los links ya publicados y separa el historial de métricas: hacerlo solo si es necesario.

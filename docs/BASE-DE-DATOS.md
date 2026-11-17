@@ -56,9 +56,12 @@ RLS está activo en **todas** las tablas. Roles: `anon` (visitante) y `authentic
 | `es_admin()` | ✅ (devuelve false) | ✅ | Políticas RLS y verificación del panel |
 | `metricas(dias)` | ⛔ | ✅ (RLS: solo admin ve filas) | Pestaña Métricas |
 | `purgar_eventos(meses)` | ⛔ | ✅ (lanza error si no es admin) | Mantenimiento manual |
+| `reordenar_productos(ids)` | ⛔ | ✅ (lanza error si no es admin) | Arrastrar y soltar en el panel |
 
 Otras medidas:
 - Registro público de usuarios **desactivado** (`disable_signup = true`); los admins se crean desde el dashboard.
+- Contraseñas: mínimo 10 caracteres con minúscula, mayúscula y número. La protección contra contraseñas filtradas
+  (HaveIBeenPwned) requiere plan Pro: es el único aviso del Security Advisor y es esperado en plan Free.
 - Políticas con `(select auth.uid())` / `(select public.es_admin())` para que Postgres las evalúe **una vez por consulta**
   y no por fila (recomendación oficial de rendimiento RLS).
 - Una sola política por rol y acción (evita `multiple_permissive_policies`).
@@ -66,7 +69,7 @@ Otras medidas:
 - `EXECUTE` revocado de `PUBLIC` en todas las funciones; se concede explícitamente.
 - “Automatically expose new tables” desactivado: cada tabla nueva requiere `GRANT` explícito.
 
-**Verificación:** *Security Advisor* = 0 avisos (17/11/2026). Pruebas como `anon`: lee 4 productos visibles,
+**Verificación:** *Security Advisor* = 1 aviso esperado (`auth_leaked_password_protection`, solo Pro) (17/11/2026). Pruebas como `anon`: lee 4 productos visibles,
 no lee `admins` ni `eventos`, no puede ejecutar `metricas()`, no puede editar productos, rechaza eventos inválidos
 y rechaza registros nuevos (`signup_disabled`).
 
@@ -109,6 +112,7 @@ supabase/migrations/<AAAAMMDDhhmmss>_<nombre_en_snake_case>.sql
 | 20261117213624 | `esquema_inicial` | tablas, RLS, bucket de fotos |
 | 20261117213637 | `buenas_practicas` | correcciones de advisors, constraints, trigger, índices, comentarios, límites de Storage |
 | 20261117214336 | `evento_enlace` | nuevo tipo de evento `enlace` (clics a sitios externos, p. ej. MakerWorld) |
+| 20261117220200 | `reordenar_productos` | función `reordenar_productos(ids text[])` para arrastrar y soltar (solo admin) |
 
 Aplicar una migración (cualquiera de las dos vías; queda registrada en `supabase_migrations.schema_migrations`):
 1. **Dashboard:** SQL Editor → pegar → Run (no queda registrada como migración; preferir la vía 2).
