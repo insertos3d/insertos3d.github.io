@@ -29,6 +29,7 @@
     .fila-p .mini img { width: 100%; height: 100%; object-fit: cover; }
     .fila-p h4 { margin: 0; font-size: .9rem; }
     .fila-p small { color: var(--texto-2); font-size: .75rem; }
+    .fila-p code { font-size: .7rem; color: var(--acento); background: var(--bg-suave); padding: 1px 6px; border-radius: 6px; }
     .toggles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
     .tg { font: inherit; font-size: .72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto-2); cursor: pointer; }
     .tg.on { background: var(--verde); border-color: var(--verde); color: #0b0b0d; font-weight: 600; }
@@ -147,7 +148,11 @@
 <div class="editor" id="editor" hidden>
   <form id="fEditor">
     <h2 style="margin:0" id="eTitulo">Producto</h2>
-    <label>Nombre <input id="eNombre" required></label>
+    <label>Nombre <input id="eNombre" required maxlength="160"></label>
+    <label>ID del producto (se usa en links <code>?p=</code>; minúsculas, números y guiones)
+      <input id="eId" required maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" spellcheck="false">
+    </label>
+    <p class="nota" id="eIdNota" style="margin:-4px 0 0"></p>
     <div class="dos">
       <label>Categoría <select id="eCategoria"></select></label>
       <label>Precio (S/, sin IGV) <input id="ePrecio" type="number" step="0.01" min="0" required></label>
@@ -170,6 +175,7 @@
     <div>
       <p class="nota" style="margin:0 0 6px">Fotos (★ = principal). Se achican automáticamente antes de subir.</p>
       <div class="fotos-ed" id="eFotos"></div>
+      <div class="checks" style="margin-top:8px"><label><input type="checkbox" id="eMarca" checked> Poner mi logo (marca de agua) en las fotos que suba</label></div>
       <label class="btn btn-ghost" style="margin-top:8px;display:inline-flex;cursor:pointer">📷 Subir fotos
         <input type="file" id="eSubir" accept="image/*" multiple hidden>
       </label>

@@ -126,6 +126,29 @@ main > section { padding: 28px 16px; max-width: 1100px; margin: 0 auto; }
 .cotizar-prod { padding: 8px; font-size: .78rem; width: 100%; }
 .agregar[disabled] { background: var(--borde); color: var(--texto-2); cursor: not-allowed; }
 
+/* Marca de agua (logo flotante sobre las fotos) */
+.marca-agua {
+  position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%;
+  opacity: .8; pointer-events: none; user-select: none; z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.marca-card { width: 28px; height: 28px; left: 8px; right: auto; opacity: .75; }
+.marca-zoom { position: fixed; right: 18px; bottom: 18px; width: 64px; height: 64px; z-index: 3; }
+.galeria-wrap .marca-agua { bottom: 10px; right: 10px; }
+
+/* Explora modelos (MakerWorld) */
+.explora {
+  text-align: center; border: 1px solid var(--borde); border-radius: var(--radio);
+  background: linear-gradient(160deg, var(--bg-suave), var(--bg)); margin: 12px 16px !important;
+}
+@media (min-width: 1132px) { .explora { margin: 12px auto !important; } }
+.explora-marca { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+.explora-marca img { border-radius: 8px; background: #fff; padding: 4px; }
+.explora p { color: var(--texto-2); margin: 0 auto 10px; max-width: 520px; }
+.explora .explora-num { font-size: 1.1rem; color: var(--texto); }
+.explora .explora-num b { color: var(--verde); }
+.explora small { display: block; margin-top: 14px; color: var(--texto-2); font-size: .72rem; }
+
 /* Cotiza */
 .cotiza { text-align: center; background: var(--bg-suave); border-radius: var(--radio); margin: 12px 16px !important; }
 @media (min-width: 1132px) { .cotiza { margin: 12px auto !important; } }

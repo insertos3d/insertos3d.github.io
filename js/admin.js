@@ -85,7 +85,7 @@
         <div class="mini">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : "📦"}</div>
         <div>
           <h4>${esc(p.nombre)}</h4>
-          <small>${esc(nombreCat(p.categoria))} · ${soles(p.precio)} · 👁 ${m.vista || 0} · 💬 ${(m.whatsapp || 0) + (m.cotizar || 0)}</small>
+          <small><code>${esc(p.id)}</code> · ${esc(nombreCat(p.categoria))} · ${soles(p.precio)} · 👁 ${m.vista || 0} · 💬 ${(m.whatsapp || 0) + (m.cotizar || 0)}</small>
           <div class="toggles">${TOGGLES.map(([k, t]) =>
             `<button class="tg ${p[k] ? "on" : ""} ${k === "agotado" ? "rojo" : ""}" data-tg="${k}" data-id="${esc(p.id)}">${t}</button>`).join("")}</div>
         </div>
@@ -124,6 +124,10 @@
   // ---------- Editor ----------
   let edit = null; // producto en edición (null = nuevo)
   let fotosEd = [];
+  let idManual = false; // si el usuario tocó el ID, ya no se autogenera desde el nombre
+  const ID_OK = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  $("#eNombre").addEventListener("input", () => { if (!idManual) $("#eId").value = slug($("#eNombre").value); });
+  $("#eId").addEventListener("input", () => { idManual = true; });
   $("#eCategoria").innerHTML = CATS.map((c) => `<option value="${c.id}">${c.icono} ${c.nombre}</option>`).join("");
   $("#nuevo").addEventListener("click", () => abrirEditor(null));
 
@@ -131,6 +135,11 @@
     edit = p;
     $("#eTitulo").textContent = p ? "Editar producto" : "Nuevo producto";
     $("#eNombre").value = p ? p.nombre : "";
+    $("#eId").value = p ? p.id : "";
+    idManual = !!p;
+    $("#eIdNota").textContent = p
+      ? "⚠️ Cambiar el ID rompe los links ya publicados (?p=) y separa sus métricas anteriores. Cámbialo solo si es necesario."
+      : "Se genera solo a partir del nombre; puedes ajustarlo antes de guardar.";
     $("#eCategoria").value = p ? p.categoria : CATS[0].id;
     $("#ePrecio").value = p ? p.precio : "";
     $("#eMayorDesde").value = p && p.mayor_desde ? p.mayor_desde : "";
@@ -166,13 +175,27 @@
     if (qq) { fotosEd.splice(+qq.dataset.quitar, 1); pintarFotosEd(); }
   });
 
-  // Achica la foto (máx. 1200 px) y la convierte a WebP antes de subirla
-  async function achicar(file) {
+  // Logo para la marca de agua (mismo dominio: no "ensucia" el canvas)
+  const logo = new Image();
+  logo.src = "img/marca/logo.png";
+
+  // Achica la foto (máx. 1200 px), pone el logo en la esquina y la convierte a WebP
+  async function achicar(file, conMarca) {
     const bmp = await createImageBitmap(file);
     const r = Math.min(1, 1200 / Math.max(bmp.width, bmp.height));
     const c = document.createElement("canvas");
     c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
-    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    const ctx = c.getContext("2d");
+    ctx.drawImage(bmp, 0, 0, c.width, c.height);
+    if (conMarca && logo.complete && logo.naturalWidth) {
+      const t = Math.round(Math.min(c.width, c.height) * 0.14), m = Math.round(t * 0.25);
+      const cx = c.width - m - t / 2, cy = c.height - m - t / 2;
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.arc(cx, cy, t / 2, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(logo, cx - t / 2, cy - t / 2, t, t);
+      ctx.restore();
+    }
     return new Promise((res) => c.toBlob(res, "image/webp", 0.82));
   }
   $("#eSubir").addEventListener("change", async (e) => {
@@ -181,7 +204,7 @@
     for (let i = 0; i < files.length; i++) {
       $("#eSubiendo").textContent = `Subiendo ${i + 1} de ${files.length}...`;
       try {
-        const blob = await achicar(files[i]);
+        const blob = await achicar(files[i], $("#eMarca").checked);
         const ext = blob.type === "image/webp" ? "webp" : "png";
         const ruta = `${carpeta}/${Date.now()}-${i}.${ext}`;
         const { error } = await sb.storage.from("productos").upload(ruta, blob, { contentType: blob.type });
@@ -207,13 +230,18 @@
     if ((fila.mayor_desde && !fila.mayor_precio) || (!fila.mayor_desde && fila.mayor_precio)) {
       $("#eError").textContent = "Para precio por mayor llena las dos casillas (desde y precio), o déjalas vacías."; return;
     }
-    let error;
-    if (edit) ({ error } = await sb.from("productos").update(fila).eq("id", edit.id));
-    else {
-      let id = slug(fila.nombre) || "producto", n = 2;
-      while (productos.some((p) => p.id === id)) id = `${slug(fila.nombre)}-${n++}`;
-      ({ error } = await sb.from("productos").insert({ id, ...fila }));
+    const nuevoId = $("#eId").value.trim();
+    if (!ID_OK.test(nuevoId) || nuevoId.length > 80) {
+      $("#eError").textContent = "ID inválido: usa solo minúsculas, números y guiones (ej. porta-papel-galleta)."; return;
     }
+    const cambiaId = edit && nuevoId !== edit.id;
+    if ((!edit || cambiaId) && productos.some((p) => p.id === nuevoId)) {
+      $("#eError").textContent = `Ya existe un producto con el ID "${nuevoId}". Elige otro.`; return;
+    }
+    if (cambiaId && !confirm(`¿Cambiar el ID de "${edit.id}" a "${nuevoId}"?\n\nLos links publicados con el ID anterior dejarán de abrir este producto.`)) return;
+    let error;
+    if (edit) ({ error } = await sb.from("productos").update(cambiaId ? { id: nuevoId, ...fila } : fila).eq("id", edit.id));
+    else ({ error } = await sb.from("productos").insert({ id: nuevoId, ...fila }));
     if (error) {
       const msg = /check constraint/i.test(error.message)
         ? "Revisa los datos: precio no negativo, por mayor desde 2 unidades, máx. 12 fotos."
@@ -251,13 +279,18 @@
     });
     const k = (v, t) => `<div class="kpi"><b>${v || 0}</b><span>${t}</span></div>`;
     $("#kpis").innerHTML = k(tot.visita, "Visitas a la web") + k(tot.vista, "Productos vistos") + k(tot.fotos, "Fotos abiertas") +
-      k(tot.carrito, "Agregados al carrito") + k(tot.whatsapp, "💬 Clics enviar pedido") + k(tot.cotizar, "💬 Clics cotizar");
+      k(tot.carrito, "Agregados al carrito") + k(tot.whatsapp, "💬 Clics enviar pedido") + k(tot.cotizar, "💬 Clics cotizar") +
+      k(tot.enlace, "🌐 Clics a MakerWorld");
 
     const nombre = (id) => {
       const p = productos.find((x) => x.id === id);
-      return p ? p.nombre : id === "por-mayor" ? "📦 Cotizar por mayor (general)" : id === "personalizado" ? "✨ Cotizar personalizado (general)" : id;
+      return p ? p.nombre : ({
+        "por-mayor": "📦 Cotizar por mayor (general)",
+        "personalizado": "✨ Cotizar personalizado (general)",
+        "makerworld": "🌐 MakerWorld (explorar = vistas · cotizar modelo)"
+      })[id] || id;
     };
-    const filas = Object.entries(porProd).map(([id, m]) => ({ id, ...m, wsp: (m.whatsapp || 0) + (m.cotizar || 0) }))
+    const filas = Object.entries(porProd).map(([id, m]) => ({ id, ...m, vista: (m.vista || 0) + (m.enlace || 0), wsp: (m.whatsapp || 0) + (m.cotizar || 0) }))
       .sort((a, b) => b.wsp - a.wsp || (b.vista || 0) - (a.vista || 0));
     $("#tablaProd").innerHTML = `<tr><th>Producto</th><th>👁 Vistas</th><th>📷 Fotos</th><th>🛒 Carrito</th><th>💬 Pedido</th><th>💬 Cotizar</th><th>% interés</th></tr>` +
       (filas.map((f) => `<tr><td>${esc(nombre(f.id))}</td><td>${f.vista || 0}</td><td>${f.fotos || 0}</td><td>${f.carrito || 0}</td>

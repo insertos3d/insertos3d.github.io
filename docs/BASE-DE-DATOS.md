@@ -14,7 +14,7 @@ public.admins ── user_id (PK, FK → auth.users, on delete cascade), creado
 
 public.productos                         public.eventos (append-only)
 ├─ id               text PK (slug)       ├─ id           bigserial PK
-├─ nombre           text                 ├─ tipo         text  (visita|vista|fotos|carrito|whatsapp|cotizar)
+├─ nombre           text                 ├─ tipo         text  (visita|vista|fotos|carrito|whatsapp|cotizar|enlace)
 ├─ categoria        text (slug)          ├─ producto_id  text  (sin FK, ver nota)
 ├─ precio           numeric(10,2) ≥ 0    ├─ origen       text  (?src= o red social)
 ├─ mayor_desde      int  ┐ ambos o       ├─ sesion       text  (aleatorio por pestaña)
@@ -108,6 +108,7 @@ supabase/migrations/<AAAAMMDDhhmmss>_<nombre_en_snake_case>.sql
 |---|---|---|
 | 20261117213624 | `esquema_inicial` | tablas, RLS, bucket de fotos |
 | 20261117213637 | `buenas_practicas` | correcciones de advisors, constraints, trigger, índices, comentarios, límites de Storage |
+| 20261117214336 | `evento_enlace` | nuevo tipo de evento `enlace` (clics a sitios externos, p. ej. MakerWorld) |
 
 Aplicar una migración (cualquiera de las dos vías; queda registrada en `supabase_migrations.schema_migrations`):
 1. **Dashboard:** SQL Editor → pegar → Run (no queda registrada como migración; preferir la vía 2).

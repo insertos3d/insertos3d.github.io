@@ -2,6 +2,13 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.3.0] - 2026-11-17
+### Agregado
+- Sección “Explora modelos” con MakerWorld (casi 3 millones de modelos) y cotización por WhatsApp.
+- Logo flotante (marca de agua) sobre fotos en tarjetas, galería y zoom.
+- Panel: ID visible y editable (con validación y aviso), marca de agua incrustada al subir fotos, métricas de MakerWorld.
+- Migración `evento_enlace` (nuevo tipo de evento).
+
 ## [1.2.0] - 2026-11-17
 ### Agregado
 - Panel de administrador (`admin.html`) con login Supabase: productos, fotos, etiquetas, métricas y links por publicación.

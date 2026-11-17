@@ -74,6 +74,21 @@
     <p class="vacio" id="vacio" hidden>No encontramos productos. ¿Buscas algo especial? <a href="#" data-cotizar>Cotiza un personalizado</a>.</p>
   </section>
 
+  <section class="explora" id="explora" aria-labelledby="t-explora">
+    <div class="explora-marca">
+      <img src="https://makerworld.com/favicon.ico" alt="" width="40" height="40" onerror="this.remove()">
+      <span>MakerWorld</span>
+    </div>
+    <h2 id="t-explora">Explora modelos</h2>
+    <p class="explora-num">Hay <b id="mwModelos">casi 3 millones</b> de modelos listos para imprimir</p>
+    <p>¿Viste uno que te gusta? Envíanos el link y <b>te lo imprimimos a pedido</b>.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" id="mwExplorar" href="https://makerworld.com/" target="_blank" rel="noopener">Explorar MakerWorld ↗</a>
+      <a href="#" class="btn btn-ghost" data-cotizar-mw>Cotizar un modelo</a>
+    </div>
+    <small>Imprimimos modelos cuya licencia permita uso comercial. MakerWorld es una plataforma de Bambu Lab, no afiliada a Insertos 3D.</small>
+  </section>
+
   <section class="cotiza">
     <h2>¿Tienes una idea?</h2>
     <p>Hacemos piezas personalizadas: logos, nombres, recuerdos para eventos, repuestos y más.</p>
@@ -139,6 +154,7 @@
     <a id="lnkTt" target="_blank" rel="noopener">TikTok</a>
     <a href="#" data-cotizar>WhatsApp</a>
     <a href="#por-mayor">Ventas por mayor</a>
+    <a href="#explora">Explora modelos</a>
   </div>
   <small>Precios en soles, no incluyen IGV (se agrega 18% solo si solicitas factura). Imágenes referenciales.</small>
 </footer>
@@ -190,6 +206,7 @@
       <button class="flecha prev" id="galPrev" aria-label="Foto anterior">‹</button>
       <button class="flecha next" id="galNext" aria-label="Foto siguiente">›</button>
       <span class="lupa" aria-hidden="true">🔍 Toca para ampliar</span>
+      <img class="marca-agua" src="img/marca/logo.png" alt="" aria-hidden="true">
     </div>
     <div class="puntos" id="puntos"></div>
     <div class="modal-info" id="modalInfo"></div>
@@ -199,6 +216,7 @@
 <!-- Foto ampliada a pantalla completa -->
 <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
   <img id="zoomImg" alt="">
+  <img class="marca-agua marca-zoom" src="img/marca/logo.png" alt="" aria-hidden="true">
   <button class="cerrar zoom-cerrar" id="cerrarZoom" aria-label="Cerrar">✕</button>
   <button class="flecha prev" id="zoomPrev" aria-label="Foto anterior">‹</button>
   <button class="flecha next" id="zoomNext" aria-label="Foto siguiente">›</button>

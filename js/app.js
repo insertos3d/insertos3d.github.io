@@ -101,6 +101,7 @@
     const nFotos = 1 + (p.fotos ? p.fotos.length : 0);
     return `<article class="card" data-pid="${p.id}">
       <div class="foto" data-ver="${p.id}" role="button" tabindex="0" aria-label="Ver fotos de ${p.nombre}">${foto(p)}<div class="etiquetas">${tags}</div>
+        <img class="marca-agua marca-card" src="img/marca/logo.png" alt="" aria-hidden="true">
         ${nFotos > 1 ? `<span class="n-fotos">📷 ${nFotos}</span>` : ""}</div>
       <div class="cuerpo">
         <h3>${p.nombre}</h3>
@@ -293,8 +294,12 @@
 
   // ---------- Eventos ----------
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor],[data-cotizar-prod],[data-ver]");
+    const t = e.target.closest("[data-add],[data-mas],[data-menos],[data-cat],[data-ir],[data-cotizar],[data-cotizar-mayor],[data-cotizar-prod],[data-ver],[data-cotizar-mw]");
     if (!t) return;
+    if (t.hasAttribute("data-cotizar-mw")) {
+      e.preventDefault(); track("cotizar", "makerworld");
+      abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar la impresión de este modelo de MakerWorld:\n\nLink del modelo: \nTamaño: \nColores: \nCantidad: \nFecha que lo necesito: `);
+    }
     if (t.dataset.ver) verProducto(t.dataset.ver);
     if (t.dataset.cotizarProd) {
       const p = porId[t.dataset.cotizarProd];
@@ -349,6 +354,11 @@
   $("#lnkFb").href = CONFIG.redes.facebook;
   $("#lnkIg").href = CONFIG.redes.instagram;
   $("#lnkTt").href = CONFIG.redes.tiktok;
+  if (CONFIG.makerworld) {
+    $("#mwModelos").textContent = CONFIG.makerworld.modelos;
+    $("#mwExplorar").href = CONFIG.makerworld.url;
+  }
+  $("#mwExplorar").addEventListener("click", () => track("enlace", "makerworld"));
 
   const esCat = (h) => CATEGORIAS.some((c) => c.id === h);
   function pintarTodo() {

@@ -11,6 +11,12 @@ const CONFIG = {
   supabaseUrl: "https://ijqhkpbxvkwnysoepgms.supabase.co",
   supabaseKey: "sb_publishable_lqs__MorKxvB_8pnhy9_BA_ChUM8Egd",   // la llave PÚBLICA (publishable / anon). NUNCA la "secret" ni "service_role".
 
+  // Sección "Explora modelos" (impresión a pedido de modelos de MakerWorld)
+  makerworld: {
+    url: "https://makerworld.com/",
+    modelos: "casi 3 millones",   // fuente: blog oficial de Bambu Lab (nov. 2026). Actualizar si cambia.
+  },
+
   marca: "Insertos 3D",
   eslogan: "Tus Accesorios en 3D",
   // Tu WhatsApp: 51 + número de 9 dígitos, sin espacios ni "+"

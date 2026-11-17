@@ -13,6 +13,13 @@ https://insertos3d.github.io/admin.html → correo y contraseña del administrad
 | Crear producto | **+ Nuevo producto** |
 | Cambiar el orden | **Editar** → *Orden* (menor = primero) |
 | Borrar definitivamente | **Editar** → Eliminar (preferir ocultar) |
+| Ver o cambiar el **ID** | Se muestra en la lista (`código`). En **Editar** → *ID del producto*. Al crear, se genera del nombre |
+
+**ID del producto:** identificador legible y único (`porta-papel-galleta`), usado en los links `?p=<id>` y en las métricas.
+Cambiarlo rompe los links ya publicados y separa el historial de métricas: hacerlo solo si es necesario.
+
+**Marca de agua:** al subir fotos desde el panel, la opción *Poner mi logo* (activada por defecto) incrusta el logo
+en la esquina de la imagen. Además, la web muestra el logo flotante sobre todas las fotos (tarjetas, galería y zoom).
 
 Precios **sin IGV**. Precio por mayor: llenar *desde* y *precio* juntos, o usar *Precio especial desde* (a consultar).
 
@@ -24,6 +31,11 @@ Precios **sin IGV**. Precio por mayor: llenar *desde* y *precio* juntos, o usar 
   WhatsApp no confirma si el mensaje se envió: compáralo con tus chats.
 - **% interés** = (Pedido + Cotizar) ÷ Vistas.
 - **Origen**: el `?src=` del link o la red social de donde llegaron.
+- 🌐 **MakerWorld**: clics en *Explorar MakerWorld* (enlace) y en *Cotizar un modelo*.
+
+## Sección “Explora modelos” (MakerWorld)
+Texto y cifra en `js/productos.js → CONFIG.makerworld` (`modelos: "casi 3 millones"`, fuente: blog oficial de Bambu Lab, nov. 2026).
+Revisar la cifra cada 6 meses. Solo imprimir para venta modelos con **licencia comercial** del creador.
 
 ## Links para publicaciones
 Pestaña **Links** → nombre de la publicación (`red-tipo-producto`, ej. `ig-reel-galleta`) → destino → Copiar.
