@@ -87,6 +87,9 @@
   const totalFinal = () => total() + igv();
   const cantidad = () => lineas().reduce((a, l) => a + l.cant, 0);
 
+  // Fotos cuyo nombre termina en "-logo.xxx" ya traen el logo grabado: no se les pone el flotante
+  const conLogo = (src) => /-logo\.[a-z0-9]+(\?|$)/i.test(src || "");
+
   // ---------- Render de productos ----------
   function foto(p) {
     return `<img src="${p.img}" alt="${p.nombre}" loading="lazy"
@@ -101,7 +104,7 @@
     const nFotos = 1 + (p.fotos ? p.fotos.length : 0);
     return `<article class="card" data-pid="${p.id}">
       <div class="foto" data-ver="${p.id}" role="button" tabindex="0" aria-label="Ver fotos de ${p.nombre}">${foto(p)}<div class="etiquetas">${tags}</div>
-        <img class="marca-agua marca-card" src="img/marca/logo.png" alt="" aria-hidden="true">
+        ${conLogo(p.img) ? "" : `<img class="marca-agua marca-card" src="img/marca/logo.png" alt="" aria-hidden="true">`}
         ${nFotos > 1 ? `<span class="n-fotos">📷 ${nFotos}</span>` : ""}</div>
       <div class="cuerpo">
         <h3>${p.nombre}</h3>
@@ -171,6 +174,7 @@
     $("#barraTotal").textContent = soles(t);
     $("#barraCarrito").hidden = n === 0;
     $("#formPedido").hidden = $("#pie").hidden = n === 0;
+    actualizarPreview();
   }
 
   function cambiar(id, d) {
@@ -197,11 +201,33 @@
       ...fact,
       `Adelanto 50% para separar: ${soles(totalFinal() * CONFIG.adelanto)}`,
       "Tiempo de preparación y entrega: a coordinar",
-      "Envío: a coordinar (a cuenta del cliente)",
+      enRuta(dist)
+        ? `🛵 Envío: estoy en la ruta semanal (${dist}). Coordinamos el envío (a cargo del comprador).`
+        : "🛵 Envío: a coordinar (a cargo del comprador).",
       ...(datos.length ? ["", ...datos] : [])
     ].join("\n");
   }
-  const abrirWsp = (texto) => window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(texto)}`, "_blank");
+  const enRuta = (d) => CONFIG.distritosEntrega.includes(d);
+  const listaDistritos = () => {
+    const d = CONFIG.distritosEntrega;
+    return d.length > 1 ? `${d.slice(0, -1).join(", ")} y ${d[d.length - 1]}` : d.join("");
+  };
+  // Abre WhatsApp con el mensaje. Si el navegador bloquea la ventana nueva, abre en la misma pestaña.
+  function abrirWsp(texto) {
+    const url = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(texto)}`;
+    aviso("Abriendo WhatsApp con tu mensaje… ✓");
+    const w = window.open(url, "_blank");
+    if (!w) location.href = url;
+  }
+
+  // Vista previa del mensaje y resumen de "Tus datos" (se actualizan al escribir)
+  function actualizarPreview() {
+    if (cantidad()) $("#previewMsg").textContent = mensaje();
+    const n = $("#fNombre").value.trim(), d = $("#fDistrito").value;
+    $("#datosResumen").textContent = n || d
+      ? `· ${[n, d].filter(Boolean).join(" · ")}${$("#fFactura").checked ? " · factura" : ""}`
+      : "(opcional · toca para abrir)";
+  }
 
   async function copiar(texto) {
     try { await navigator.clipboard.writeText(texto); }
@@ -227,11 +253,12 @@
     const g = $("#galeria"); g.scrollTo({ left: g.clientWidth * fotoIdx, behavior: "smooth" });
     marcaGaleria();
   }
-  // Coloca el logo en la esquina superior derecha de la FOTO (no de las franjas negras).
+  // Coloca el logo en la esquina inferior izquierda de la FOTO (no de las franjas negras).
   // La foto usa object-fit: contain, así que se calcula el área real que ocupa.
   function marcaGaleria() {
     const g = $("#galeria"), img = g.querySelectorAll("img")[fotoIdx], m = $(".galeria-wrap .marca-agua");
     if (!img || !m) return;
+    m.hidden = conLogo(img.getAttribute("src"));
     const W = g.clientWidth, H = img.clientHeight || g.clientHeight;
     const nw = img.naturalWidth, nh = img.naturalHeight;
     let dx = 0, dy = 0;
@@ -239,14 +266,13 @@
       const s = Math.min(W / nw, H / nh);
       dx = (W - nw * s) / 2; dy = (H - nh * s) / 2;
     }
-    // Si la esquina de la foto coincide con el botón ✕ del modal, bajar el logo
-    const top = dy + 10 < 52 && dx < 52 ? 56 : dy + 10;
-    m.style.top = `${Math.round(top)}px`;
-    m.style.right = `${Math.round(dx + 10)}px`;
+    m.style.left = `${Math.round(dx + 10)}px`;
+    m.style.bottom = `${Math.round(dy + 10)}px`;
   }
   window.addEventListener("resize", marcaGaleria);
   function pintarZoom() {
     $("#zoomImg").src = fotosAct[zoomIdx];
+    $(".marca-zoom").hidden = conLogo(fotosAct[zoomIdx]);
     $("#zoomImg").alt = `Foto ${zoomIdx + 1}`;
     $("#zoomCont").textContent = `${zoomIdx + 1} / ${fotosAct.length}`;
   }
@@ -340,6 +366,7 @@
   });
   $("#buscar").addEventListener("input", filtrar);
   $("#fFactura").addEventListener("change", pintarCarrito);
+  ["#fNombre", "#fDistrito", "#fNotas", "#fRuc", "#fRazon"].forEach((s) => $(s).addEventListener("input", actualizarPreview));
   $("#fRuc").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, ""); });
   $("#abrirCarrito").addEventListener("click", abrir);
   $("#barraCarrito").addEventListener("click", abrir);
@@ -366,11 +393,10 @@
   });
 
   // ---------- Inicio ----------
-  $("#fDistrito").innerHTML = `<option value="">Selecciona...</option>` +
-    CONFIG.distritosEntrega.map((d) => `<option>${d}</option>`).join("") +
-    `<option>Otro distrito de Lima</option><option>Provincia (envío por agencia)</option>`;
-  $("#distritos").textContent = CONFIG.distritosEntrega.join(", ");
-  $("#diaEntrega").textContent = CONFIG.diaEntrega.toLowerCase();
+  $("#fDistrito").innerHTML = `<option value="">Selecciona tu distrito…</option>` +
+    `<optgroup label="🛵 Ruta semanal (envío más económico)">${CONFIG.distritosEntrega.map((d) => `<option>${d}</option>`).join("")}</optgroup>` +
+    `<optgroup label="Otros destinos"><option>Otro distrito de Lima</option><option>Provincia</option></optgroup>`;
+  document.querySelectorAll("#distritos, .distritos-txt").forEach((el) => { el.textContent = listaDistritos(); });
   $("#tiempo").textContent = CONFIG.tiempoFabricacion;
   $("#lnkFb").href = CONFIG.redes.facebook;
   $("#lnkIg").href = CONFIG.redes.instagram;

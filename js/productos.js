@@ -26,8 +26,8 @@ const CONFIG = {
   igv: 0.18,     // se suma SOLO si el cliente pide factura (los precios de abajo van SIN IGV)
   tiempoFabricacion: "el tiempo de preparación se coordina para la entrega, según el producto y la cantidad",
   notaPreparacion: "Coordinar tiempo de preparación para la entrega", // aparece en TODOS los productos
-  diaEntrega: "Sábados",
-  distritosEntrega: ["Cercado de Lima", "San Miguel", "Pueblo Libre", "Jesús María", "Los Olivos", "San Martín de Porres"],
+  // Ruta de entregas semanales (envío más económico, a cargo del comprador)
+  distritosEntrega: ["La Molina", "San Borja", "San Isidro", "Miraflores"],
   redes: {
     facebook: "https://www.facebook.com/Insertos3D",
     instagram: "https://www.instagram.com/insertos3d",   // cámbialo por tu usuario real
@@ -115,10 +115,10 @@ const PRODUCTOS = [
     categoria: "religioso",
     precio: 12,
     cotizar: true,
-    img: "img/productos/religioso/papa-leon-xiv-mini-1.jpg",
+    img: "img/productos/religioso/papa-leon-xiv-mini-1-logo.jpg",
     fotos: [
-      "img/productos/religioso/papa-leon-xiv-mini-2.jpg",
-      "img/productos/religioso/papa-leon-xiv-mini-3.jpg"
+      "img/productos/religioso/papa-leon-xiv-mini-2-logo.jpg",
+      "img/productos/religioso/papa-leon-xiv-mini-3-logo.jpg"
     ],
     descripcion: "Figura mini del Papa León XIV saludando, con cruz y base con su nombre. Impresión 3D a colores en plástico. Ideal como recuerdo o detalle para eventos.",
     tendencia: true, nuevo: true

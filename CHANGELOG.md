@@ -2,6 +2,19 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.5.0] - 2026-11-17
+### Cambiado
+- Carrito: productos siempre visibles; “Tus datos” plegable con resumen; total y botones fijos abajo;
+  vista previa del mensaje; aviso al abrir WhatsApp (y respaldo si el navegador bloquea la ventana).
+- Envíos: ruta semanal en La Molina, San Borja, San Isidro y Miraflores (envío más económico, a cargo del comprador,
+  entrega directa o motorizado). Textos más amables en toda la página; nueva pregunta frecuente de envíos.
+- Selector de distrito agrupado (ruta semanal / otros destinos); el mensaje indica si el cliente está en la ruta.
+- Logo (marca de agua) en la esquina inferior izquierda; las fotos con logo grabado (`-logo` en el nombre)
+  no muestran el logo flotante, para no duplicarlo.
+- Vista previa al compartir: Open Graph con URLs absolutas e imagen 1200×630.
+### Eliminado
+- Día de entrega fijo (no confirmado).
+
 ## [1.4.0] - 2026-11-17
 ### Agregado
 - Panel: ordenar productos arrastrando (mouse y mantener-presionado en celular) y botón ⤒ primer lugar.

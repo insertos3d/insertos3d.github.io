@@ -23,7 +23,12 @@ Con un filtro activo, arrastrar reordena solo los productos visibles; el resto m
 Cambiarlo rompe los links ya publicados y separa el historial de métricas: hacerlo solo si es necesario.
 
 **Marca de agua:** al subir fotos desde el panel, la opción *Poner mi logo* (activada por defecto) incrusta el logo
-en la esquina de la imagen. Además, la web muestra el logo flotante sobre todas las fotos (tarjetas, galería y zoom).
+en la esquina inferior izquierda de la imagen. Además, la web muestra el logo flotante en la esquina inferior
+izquierda de todas las fotos (tarjetas, galería y zoom).
+
+**Envíos:** la ruta semanal (envío más económico, a cargo del comprador) se define en
+`js/productos.js → CONFIG.distritosEntrega` (hoy: La Molina, San Borja, San Isidro y Miraflores). Todos los textos de la
+web, el selector del carrito y el mensaje de WhatsApp se actualizan solos con esa lista.
 
 Precios **sin IGV**. Precio por mayor: llenar *desde* y *precio* juntos, o usar *Precio especial desde* (a consultar).
 

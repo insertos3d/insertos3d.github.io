@@ -58,7 +58,7 @@
       <li>📦 Ventas por mayor</li>
       <li>🧾 Factura con RUC</li>
       <li>💜 Yape / transferencia</li>
-      <li>🛵 Entregas semanales</li>
+      <li><a href="#envios">🛵 Entregas semanales</a></li>
     </ul>
   </section>
 
@@ -113,20 +113,21 @@
   <section id="como-comprar" class="info">
     <h2>¿Cómo comprar?</h2>
     <ol class="pasos">
-      <li><b>Arma tu carrito</b> con los productos que quieras.</li>
-      <li><b>Envíanos el pedido</b> por WhatsApp (o copia el mensaje).</li>
-      <li><b>Separa con el 50%</b> por Yape o transferencia para iniciar la fabricación.</li>
-      <li><b>Recibe tu pedido</b> y paga el saldo al entregar o antes del envío.</li>
+      <li><b>Arma tu carrito</b> con los productos que más te gusten.</li>
+      <li><b>Envíanos tu pedido</b> por WhatsApp con un clic (o copia el mensaje si prefieres).</li>
+      <li><b>Sepáralo con el 50%</b> por Yape o transferencia, y empezamos a fabricarlo para ti.</li>
+      <li><b>Coordinamos juntos la entrega</b> y completas el pago antes de recibirlo.</li>
     </ol>
 
     <div class="tarjetas">
       <article>
         <h3>💜 Pagos</h3>
-        <p>Yape y/o transferencia bancaria, previa coordinación. Los datos se envían por WhatsApp al confirmar.</p>
+        <p>Puedes pagar por <b>Yape</b> o <b>transferencia bancaria</b>. Cuando confirmemos tu pedido te enviamos los datos de pago por WhatsApp.</p>
       </article>
-      <article>
+      <article id="envios">
         <h3>🛵 Envíos</h3>
-        <p>El envío se coordina y es <b>a cuenta del cliente</b>. Hacemos entregas semanales (<span id="diaEntrega"></span>) en: <span id="distritos"></span>. Coordinamos con motorizado o agencia.</p>
+        <p>Cada semana hacemos una ruta de entregas en <b><span id="distritos">La Molina, San Borja, San Isidro y Miraflores</span></b>. Si estás en uno de estos distritos, tu envío sale <b>más económico</b> 🙌</p>
+        <p>El costo del envío lo asume el comprador y lo coordinamos contigo por WhatsApp: puede ser <b>entrega directa</b> o con <b>motorizado</b>. ¿Estás en otro distrito o en provincia? ¡También llegamos! Te proponemos la mejor opción.</p>
       </article>
       <article>
         <h3>📦 Por mayor</h3>
@@ -145,10 +146,11 @@
 
   <section class="faq">
     <h2>Preguntas frecuentes</h2>
-    <details><summary>¿Necesito crear una cuenta?</summary><p>No. Solo armas tu carrito y nos envías el pedido por WhatsApp.</p></details>
-    <details><summary>¿Por qué se pide el 50% de adelanto?</summary><p>Cada producto se imprime a pedido. El adelanto confirma tu pedido y reserva tu turno de fabricación.</p></details>
-    <details><summary>¿Puedo elegir colores?</summary><p>Sí, indícalo en las notas del pedido. Los colores pueden variar ligeramente según el material disponible.</p></details>
-    <details><summary>¿Hacen cambios o devoluciones?</summary><p>Si el producto llega con fallas de fabricación, lo reponemos. Los productos personalizados no tienen devolución.</p></details>
+    <details><summary>¿Necesito crear una cuenta?</summary><p>¡No! Solo armas tu carrito y nos envías el pedido por WhatsApp. Así de simple.</p></details>
+    <details><summary>¿Cómo es el envío y cuánto cuesta?</summary><p>Cada semana hacemos una ruta de entregas en <span class="distritos-txt">La Molina, San Borja, San Isidro y Miraflores</span>, así el envío te sale más económico. El costo del envío lo asume el comprador y lo coordinamos contigo antes de enviar: entrega directa o con motorizado. Si estás en otro distrito o en provincia, también te lo hacemos llegar; te proponemos la mejor opción.</p></details>
+    <details><summary>¿Por qué se pide el 50% de adelanto?</summary><p>Cada pieza se fabrica especialmente para ti. El adelanto confirma tu pedido y te reserva un turno de impresión.</p></details>
+    <details><summary>¿Puedo elegir colores?</summary><p>¡Claro! Cuéntanos en las notas del pedido qué colores prefieres. Pueden variar ligeramente según el material disponible; si es así, te avisamos antes.</p></details>
+    <details><summary>¿Hacen cambios o devoluciones?</summary><p>Si tu producto llega con alguna falla de fabricación, te lo reponemos sin costo. Los productos personalizados no tienen devolución, porque se hacen especialmente para ti.</p></details>
     <details><summary>¿Emiten factura?</summary><p>Sí, contamos con RUC del rubro. Los precios publicados no incluyen IGV; si necesitas factura se agrega el 18% de IGV. Marca la opción “Necesito factura” en el carrito e indica tu RUC y razón social.</p></details>
     <details><summary>¿Venden por mayor?</summary><p>Sí. Varios productos tienen precio por mayor automático en el carrito, y para pedidos grandes (empresas, eventos, colegios, reventa) hacemos cotizaciones especiales. <a href="#" data-cotizar-mayor>Cotiza aquí</a>.</p></details>
   </section>
@@ -187,28 +189,43 @@
     <h2>Tu pedido</h2>
     <button class="cerrar" id="cerrarCarrito" aria-label="Cerrar">✕</button>
   </div>
-  <div class="carrito-items" id="items"></div>
-  <div class="carrito-form" id="formPedido">
-    <label>Tu nombre <input id="fNombre" autocomplete="name" placeholder="Opcional"></label>
-    <label>Distrito / ciudad
-      <select id="fDistrito"></select>
-    </label>
-    <label>Notas (colores, nombres, fecha) <textarea id="fNotas" rows="2" placeholder="Ej: esferas rojas con los nombres Ana y Luis"></textarea></label>
-    <label class="check"><input type="checkbox" id="fFactura"> Necesito factura (+18% IGV)</label>
-    <div class="factura-campos" id="facturaCampos" hidden>
-      <label>RUC <input id="fRuc" inputmode="numeric" maxlength="11" placeholder="11 dígitos"></label>
-      <label>Razón social <input id="fRazon" placeholder="Nombre de la empresa"></label>
+  <!-- Zona con scroll: productos siempre visibles + datos plegables -->
+  <div class="carrito-cuerpo">
+    <div class="carrito-items" id="items"></div>
+    <div class="carrito-extra" id="formPedido">
+      <details class="plegable" id="datosPedido">
+        <summary>📝 Tus datos para el pedido <span class="nota" id="datosResumen">(opcional · toca para abrir)</span></summary>
+        <div class="carrito-form">
+          <label>Tu nombre <input id="fNombre" autocomplete="name" placeholder="¿Cómo te llamas?"></label>
+          <label>Distrito de entrega
+            <select id="fDistrito"></select>
+          </label>
+          <label>Notas (colores, nombres, fecha) <textarea id="fNotas" rows="2" placeholder="Ej: esferas rojas con los nombres Ana y Luis"></textarea></label>
+          <label class="check"><input type="checkbox" id="fFactura"> Necesito factura (+18% IGV)</label>
+          <div class="factura-campos" id="facturaCampos" hidden>
+            <label>RUC <input id="fRuc" inputmode="numeric" maxlength="11" placeholder="11 dígitos"></label>
+            <label>Razón social <input id="fRazon" placeholder="Nombre de la empresa"></label>
+          </div>
+        </div>
+      </details>
+      <p class="nota envio-nota">🛵 <b>Entregas semanales</b> en <span class="distritos-txt">La Molina, San Borja, San Isidro y Miraflores</span>: envío más económico. El costo del envío lo asume el comprador y lo coordinamos contigo (entrega directa o motorizado).</p>
+      <p class="nota mayor-nota">📦 ¿Compras en cantidad? <a href="#" data-cotizar-mayor>Pide precio por mayor</a></p>
+      <details class="plegable">
+        <summary>👁 Ver el mensaje que nos llegará</summary>
+        <pre class="preview" id="previewMsg"></pre>
+      </details>
     </div>
   </div>
+  <!-- Pie fijo: total y botones siempre visibles -->
   <div class="carrito-foot" id="pie">
     <div class="fila"><span>Subtotal productos</span><b id="total">S/ 0.00</b></div>
     <div class="fila igv" id="filaIgv" hidden><span>IGV 18%</span><b id="igv">S/ 0.00</b></div>
     <div class="fila" id="filaTotalFact" hidden><span>Total con IGV</span><b id="totalFact">S/ 0.00</b></div>
-    <div class="fila adelanto"><span>Adelanto 50% para separar</span><b id="adelanto">S/ 0.00</b></div>
-    <p class="nota mayor-nota">📦 ¿Compras en cantidad? <a href="#" data-cotizar-mayor>Pide precio por mayor</a></p>
-    <p class="nota">Envío a coordinar, a cuenta del cliente.</p>
-    <button class="btn btn-wsp" id="enviarWsp">Enviar pedido por WhatsApp</button>
-    <button class="btn btn-ghost" id="copiar">Copiar mensaje del pedido</button>
+    <div class="fila adelanto"><span>Adelanto para separar (50%)</span><b id="adelanto">S/ 0.00</b></div>
+    <div class="botones-pie">
+      <button class="btn btn-wsp" id="enviarWsp">Enviar pedido por WhatsApp</button>
+      <button class="btn btn-ghost" id="copiar" title="Copiar mensaje del pedido">📋 Copiar</button>
+    </div>
   </div>
 </aside>
 

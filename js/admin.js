@@ -297,7 +297,7 @@
     ctx.drawImage(bmp, 0, 0, c.width, c.height);
     if (conMarca && logo.complete && logo.naturalWidth) {
       const t = Math.round(Math.min(c.width, c.height) * 0.14), m = Math.round(t * 0.25);
-      const cx = c.width - m - t / 2, cy = c.height - m - t / 2;
+      const cx = m + t / 2, cy = c.height - m - t / 2;   // esquina inferior izquierda
       ctx.save();
       ctx.globalAlpha = 0.85;
       ctx.beginPath(); ctx.arc(cx, cy, t / 2, 0, Math.PI * 2); ctx.clip();
@@ -314,7 +314,8 @@
       try {
         const blob = await achicar(files[i], $("#eMarca").checked);
         const ext = blob.type === "image/webp" ? "webp" : "png";
-        const ruta = `${carpeta}/${Date.now()}-${i}.${ext}`;
+        // "-logo" en el nombre = la foto ya trae el logo grabado (la web no le pone el logo flotante encima)
+        const ruta = `${carpeta}/${Date.now()}-${i}${$("#eMarca").checked ? "-logo" : ""}.${ext}`;
         const { error } = await sb.storage.from("productos").upload(ruta, blob, { contentType: blob.type });
         if (error) throw error;
         fotosEd.push(sb.storage.from("productos").getPublicUrl(ruta).data.publicUrl);
