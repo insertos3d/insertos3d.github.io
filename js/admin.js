@@ -98,7 +98,7 @@
     if (tg) {
       const p = productos.find((x) => x.id === tg.dataset.id), k = tg.dataset.tg, val = !p[k];
       tg.disabled = true;
-      const { error } = await sb.from("productos").update({ [k]: val, actualizado: new Date().toISOString() }).eq("id", p.id);
+      const { error } = await sb.from("productos").update({ [k]: val }).eq("id", p.id);
       tg.disabled = false;
       if (error) return aviso("No se pudo guardar");
       p[k] = val; pintarLista(); aviso("Guardado ✓");
@@ -202,7 +202,7 @@
       descripcion: $("#eDesc").value.trim() || null, activo: $("#eActivo").checked, tendencia: $("#eTendencia").checked,
       temporada: $("#eTemporada").checked, nuevo: $("#eNuevo").checked, agotado: $("#eAgotado").checked,
       cotizar: $("#eCotizar").checked, orden: num("#eOrden") ?? 100,
-      img: fotosEd[0] || null, fotos: fotosEd.slice(1), actualizado: new Date().toISOString()
+      img: fotosEd[0] || null, fotos: fotosEd.slice(1)
     };
     if ((fila.mayor_desde && !fila.mayor_precio) || (!fila.mayor_desde && fila.mayor_precio)) {
       $("#eError").textContent = "Para precio por mayor llena las dos casillas (desde y precio), o déjalas vacías."; return;
@@ -214,7 +214,12 @@
       while (productos.some((p) => p.id === id)) id = `${slug(fila.nombre)}-${n++}`;
       ({ error } = await sb.from("productos").insert({ id, ...fila }));
     }
-    if (error) { $("#eError").textContent = "No se pudo guardar: " + error.message; return; }
+    if (error) {
+      const msg = /check constraint/i.test(error.message)
+        ? "Revisa los datos: precio no negativo, por mayor desde 2 unidades, máx. 12 fotos."
+        : error.message;
+      $("#eError").textContent = "No se pudo guardar: " + msg; return;
+    }
     cerrarEditor(); aviso("Producto guardado ✓");
     await cargarProductos(); pintarLista(); pintarDestinos();
   });

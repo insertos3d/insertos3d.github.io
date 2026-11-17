@@ -8,8 +8,8 @@
 const CONFIG = {
   // Base de datos del panel de administrador (Supabase → Project Settings → API).
   // Vacío = la web usa la lista PRODUCTOS de abajo y no registra métricas.
-  supabaseUrl: "",
-  supabaseKey: "",   // la llave PÚBLICA (publishable / anon). NUNCA la "secret" ni "service_role".
+  supabaseUrl: "https://ijqhkpbxvkwnysoepgms.supabase.co",
+  supabaseKey: "sb_publishable_lqs__MorKxvB_8pnhy9_BA_ChUM8Egd",   // la llave PÚBLICA (publishable / anon). NUNCA la "secret" ni "service_role".
 
   marca: "Insertos 3D",
   eslogan: "Tus Accesorios en 3D",
