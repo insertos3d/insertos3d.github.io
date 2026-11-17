@@ -99,6 +99,16 @@ const PRODUCTOS = [
     tendencia: true, temporada: true
   },
   {
+    id: "papa-leon-xiv-mini",
+    nombre: "Papa León XIV (Mini)",
+    categoria: "religioso",
+    precio: 12,
+    cotizar: true,
+    img: "img/productos/religioso/papa-leon-xiv-mini-1.jpg",
+    descripcion: "Figura mini del Papa León XIV saludando, con cruz y base con su nombre. Impresión 3D a colores en plástico. Ideal como recuerdo o detalle para eventos.",
+    tendencia: true, nuevo: true
+  },
+  {
     id: "misterio-nacimiento-3d",
     nombre: "Misterio Nacimiento 3D",
     categoria: "religioso",
