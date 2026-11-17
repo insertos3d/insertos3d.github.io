@@ -2,19 +2,82 @@
 (function () {
   const $ = (s) => document.querySelector(s);
   const M = CONFIG.moneda;
-  const soles = (n) => `${M} ${n.toFixed(2)}`;
+  const soles = (n) => `${M} ${Number(n).toFixed(2)}`;
   const iconoCat = (id) => (CATEGORIAS.find((c) => c.id === id) || {}).icono || "📦";
-  const porId = Object.fromEntries(PRODUCTOS.map((p) => [p.id, p]));
+
+  // Catálogo: empieza con productos.js y, si hay Supabase, se reemplaza por la base de datos
+  let catalogo = PRODUCTOS;
+  let porId = {};
+  const indexar = () => { porId = Object.fromEntries(catalogo.map((p) => [p.id, p])); };
+  indexar();
+
+  // ---------- Supabase (opcional) ----------
+  const SB = CONFIG.supabaseUrl && CONFIG.supabaseKey ? CONFIG.supabaseUrl.replace(/\/$/, "") : "";
+  const sbHeaders = () => {
+    const h = { apikey: CONFIG.supabaseKey, "Content-Type": "application/json" };
+    if (CONFIG.supabaseKey.startsWith("eyJ")) h.Authorization = `Bearer ${CONFIG.supabaseKey}`; // llave "anon" antigua
+    return h;
+  };
+  const desdeBD = (r) => ({
+    id: r.id, nombre: r.nombre, categoria: r.categoria, precio: Number(r.precio),
+    mayor: r.mayor_desde && r.mayor_precio ? { desde: r.mayor_desde, precio: Number(r.mayor_precio) } : null,
+    mayorConsultar: r.mayor_consultar || null, cotizar: r.cotizar, img: r.img, fotos: r.fotos || [],
+    descripcion: r.descripcion, tendencia: r.tendencia, temporada: r.temporada, nuevo: r.nuevo, agotado: r.agotado
+  });
+  async function cargarDeBD() {
+    if (!SB) return;
+    try {
+      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 4000);
+      const r = await fetch(`${SB}/rest/v1/productos?select=*&activo=eq.true&order=orden.asc,nombre.asc`, { headers: sbHeaders(), signal: ctrl.signal });
+      clearTimeout(t);
+      if (!r.ok) throw new Error(r.status);
+      const filas = await r.json();
+      if (filas.length) { catalogo = filas.map(desdeBD); indexar(); }
+    } catch (e) { /* sin conexión: se queda el catálogo de productos.js */ }
+  }
+
+  // ---------- Métricas ----------
+  const ss = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } };
+  const limpiar = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 60);
+  const params = new URLSearchParams(location.search);
+  if (params.get("src")) ss("origen3d", limpiar(params.get("src")));
+  function origen() {
+    const guardado = ss("origen3d"); if (guardado) return guardado;
+    const ref = document.referrer.toLowerCase();
+    const o = /facebook|fb\./.test(ref) ? "facebook" : /instagram/.test(ref) ? "instagram" : /tiktok/.test(ref) ? "tiktok"
+      : /whatsapp|wa\.me/.test(ref) ? "whatsapp" : /google/.test(ref) ? "google" : ref && !ref.includes(location.host) ? "otro" : "directo";
+    ss("origen3d", o); return o;
+  }
+  let sesion = ss("sesion3d");
+  if (!sesion) { sesion = Math.random().toString(36).slice(2, 12); ss("sesion3d", sesion); }
+  function track(tipo, productoId) {
+    if (!SB) return;
+    try {
+      fetch(`${SB}/rest/v1/eventos`, {
+        method: "POST", keepalive: true,
+        headers: { ...sbHeaders(), Prefer: "return=minimal" },
+        body: JSON.stringify({ tipo, producto_id: productoId || null, origen: origen(), sesion })
+      }).catch(() => {});
+    } catch (e) {}
+  }
+  // "vista" = el producto apareció en pantalla (1 vez por visita)
+  const vistos = new Set();
+  const observador = "IntersectionObserver" in window ? new IntersectionObserver((ents) => {
+    ents.forEach((en) => {
+      const id = en.target.dataset.pid;
+      if (en.isIntersecting && id && !vistos.has(id)) { vistos.add(id); track("vista", id); }
+    });
+  }, { threshold: 0.5 }) : null;
+  const observar = () => observador && document.querySelectorAll(".card[data-pid]").forEach((c) => observador.observe(c));
 
   // ---------- Carrito (se guarda en el navegador del cliente) ----------
   let carrito = {};
   try { carrito = JSON.parse(localStorage.getItem("carrito3d") || "{}"); } catch (e) {}
-  for (const id in carrito) if (!porId[id]) delete carrito[id];
   const guardar = () => { try { localStorage.setItem("carrito3d", JSON.stringify(carrito)); } catch (e) {} };
 
   // Precio unitario: aplica el precio por mayor si llega a la cantidad mínima
   const precioUnit = (p, cant) => (p.mayor && cant >= p.mayor.desde ? p.mayor.precio : p.precio);
-  const lineas = () => Object.entries(carrito).map(([id, cant]) => {
+  const lineas = () => Object.entries(carrito).filter(([id]) => porId[id]).map(([id, cant]) => {
     const p = porId[id]; const pu = precioUnit(p, cant);
     return { p, cant, pu, sub: pu * cant, esMayor: pu !== p.precio };
   });
@@ -22,7 +85,7 @@
   const conFactura = () => document.querySelector("#fFactura").checked;
   const igv = () => (conFactura() ? total() * CONFIG.igv : 0);
   const totalFinal = () => total() + igv();
-  const cantidad = () => Object.values(carrito).reduce((a, b) => a + b, 0);
+  const cantidad = () => lineas().reduce((a, l) => a + l.cant, 0);
 
   // ---------- Render de productos ----------
   function foto(p) {
@@ -36,7 +99,7 @@
       p.agotado ? '<span class="tag">Agotado</span>' : ""
     ].join("");
     const nFotos = 1 + (p.fotos ? p.fotos.length : 0);
-    return `<article class="card">
+    return `<article class="card" data-pid="${p.id}">
       <div class="foto" data-ver="${p.id}" role="button" tabindex="0" aria-label="Ver fotos de ${p.nombre}">${foto(p)}<div class="etiquetas">${tags}</div>
         ${nFotos > 1 ? `<span class="n-fotos">📷 ${nFotos}</span>` : ""}</div>
       <div class="cuerpo">
@@ -61,7 +124,7 @@
   }
   function filtrar() {
     const q = $("#buscar").value.trim().toLowerCase();
-    const lista = PRODUCTOS.filter((p) => {
+    const lista = catalogo.filter((p) => {
       const enCat = catActual === "todo" || p.categoria === catActual ||
         (catActual === "tendencia" && p.tendencia) || (catActual === "temporada" && p.temporada);
       const enBusqueda = !q || (p.nombre + " " + (p.descripcion || "") + " " + p.categoria).toLowerCase().includes(q);
@@ -69,6 +132,7 @@
     });
     $("#grid").innerHTML = lista.map(tarjeta).join("");
     $("#vacio").hidden = lista.length > 0;
+    observar();
   }
   function irACategoria(id) {
     catActual = CATEGORIAS.some((c) => c.id === id) ? id : "todo";
@@ -154,9 +218,33 @@
   }
 
   // ---------- Galería de fotos del producto ----------
+  let fotosAct = [], fotoIdx = 0, zoomIdx = 0;
+  const vuelta = (i) => (i + fotosAct.length) % fotosAct.length; // al pasar la última vuelve a la primera
+  function irFoto(i) {
+    if (!fotosAct.length) return;
+    fotoIdx = vuelta(i);
+    const g = $("#galeria"); g.scrollTo({ left: g.clientWidth * fotoIdx, behavior: "smooth" });
+  }
+  function pintarZoom() {
+    $("#zoomImg").src = fotosAct[zoomIdx];
+    $("#zoomImg").alt = `Foto ${zoomIdx + 1}`;
+    $("#zoomCont").textContent = `${zoomIdx + 1} / ${fotosAct.length}`;
+  }
+  function abrirZoom(i) {
+    zoomIdx = vuelta(i); pintarZoom();
+    const varias = fotosAct.length > 1;
+    $("#zoomPrev").hidden = $("#zoomNext").hidden = $("#zoomCont").hidden = !varias;
+    $("#zoom").hidden = false;
+  }
+  function pasoZoom(d) { zoomIdx = vuelta(zoomIdx + d); pintarZoom(); }
+  function cerrarZoom() { $("#zoom").hidden = true; irFoto(zoomIdx); }
+
   function verProducto(id) {
     const p = porId[id]; if (!p) return;
+    track("fotos", id);
     const imgs = [p.img, ...(p.fotos || [])];
+    fotosAct = imgs; fotoIdx = 0;
+    $("#galPrev").hidden = $("#galNext").hidden = imgs.length < 2;
     $("#galeria").innerHTML = imgs.map((src, i) => `<img src="${src}" alt="${p.nombre} foto ${i + 1}">`).join("");
     $("#galeria").scrollLeft = 0;
     $("#puntos").innerHTML = imgs.length > 1 ? imgs.map((_, i) => `<button data-punto="${i}" aria-label="Foto ${i + 1}" class="${i ? "" : "activo"}"></button>`).join("") : "";
@@ -175,11 +263,26 @@
   function cerrarModal() { $("#modal").hidden = true; document.body.style.overflow = ""; }
   $("#galeria").addEventListener("scroll", () => {
     const g = $("#galeria"), i = Math.round(g.scrollLeft / g.clientWidth);
+    fotoIdx = i;
     document.querySelectorAll("#puntos button").forEach((b, j) => b.classList.toggle("activo", i === j));
   });
   $("#puntos").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-punto]"); if (!b) return;
-    const g = $("#galeria"); g.scrollTo({ left: g.clientWidth * +b.dataset.punto, behavior: "smooth" });
+    const b = e.target.closest("[data-punto]"); if (b) irFoto(+b.dataset.punto);
+  });
+  $("#galPrev").addEventListener("click", () => irFoto(fotoIdx - 1));
+  $("#galNext").addEventListener("click", () => irFoto(fotoIdx + 1));
+  $("#galeria").addEventListener("click", (e) => { if (e.target.tagName === "IMG") abrirZoom(fotoIdx); });
+  $("#zoomPrev").addEventListener("click", () => pasoZoom(-1));
+  $("#zoomNext").addEventListener("click", () => pasoZoom(1));
+  $("#cerrarZoom").addEventListener("click", cerrarZoom);
+  $("#zoom").addEventListener("click", (e) => { if (e.target.id === "zoom") cerrarZoom(); });
+  // Deslizar con el dedo en la foto ampliada
+  let x0 = null;
+  $("#zoom").addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  $("#zoom").addEventListener("touchend", (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 40 && fotosAct.length > 1) pasoZoom(dx < 0 ? 1 : -1);
   });
   $("#cerrarModal").addEventListener("click", cerrarModal);
   $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") cerrarModal(); });
@@ -195,18 +298,19 @@
     if (t.dataset.ver) verProducto(t.dataset.ver);
     if (t.dataset.cotizarProd) {
       const p = porId[t.dataset.cotizarProd];
+      track("cotizar", p.id);
       abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar: *${p.nombre}* (precio regular ${soles(p.precio)})\n\nTamaño que necesito: \nCantidad: ${p.mayorConsultar ? `(precio especial desde ${p.mayorConsultar} u.)` : ""}\nColores: \nFecha que lo necesito: `);
     }
     if (t.hasAttribute("data-cotizar-mayor")) {
-      e.preventDefault();
+      e.preventDefault(); track("cotizar", "por-mayor");
       abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar un pedido POR MAYOR:\n\nProducto(s): \nCantidad aproximada: \nFecha que lo necesito: \n¿Requiere factura?: Sí / No`);
     }
-    if (t.dataset.add) { cambiar(t.dataset.add, 1); aviso("Agregado al carrito 🛒"); }
+    if (t.dataset.add) { cambiar(t.dataset.add, 1); track("carrito", t.dataset.add); aviso("Agregado al carrito 🛒"); }
     if (t.dataset.mas) cambiar(t.dataset.mas, 1);
     if (t.dataset.menos) cambiar(t.dataset.menos, -1);
     if (t.dataset.cat) { irACategoria(t.dataset.cat); history.replaceState(null, "", "#" + t.dataset.cat); }
     if (t.dataset.ir) irACategoria(t.dataset.ir);
-    if (t.hasAttribute("data-cotizar")) { e.preventDefault(); abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar un producto personalizado:`); }
+    if (t.hasAttribute("data-cotizar")) { e.preventDefault(); track("cotizar", "personalizado"); abrirWsp(`¡Hola ${CONFIG.marca}! 👋 Quiero cotizar un producto personalizado:`); }
   });
   $("#buscar").addEventListener("input", filtrar);
   $("#fFactura").addEventListener("change", pintarCarrito);
@@ -216,11 +320,24 @@
   $("#cerrarCarrito").addEventListener("click", cerrar);
   $("#overlay").addEventListener("click", cerrar);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { cerrar(); cerrarModal(); }
+    const zoomAbierto = !$("#zoom").hidden, modalAbierto = !$("#modal").hidden;
+    if (e.key === "Escape") { if (zoomAbierto) return cerrarZoom(); cerrar(); cerrarModal(); }
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      const d = e.key === "ArrowRight" ? 1 : -1;
+      if (zoomAbierto) pasoZoom(d); else if (modalAbierto) irFoto(fotoIdx + d);
+    }
     if (e.key === "Enter" && e.target.dataset && e.target.dataset.ver) verProducto(e.target.dataset.ver);
   });
-  $("#enviarWsp").addEventListener("click", () => cantidad() && abrirWsp(mensaje()));
-  $("#copiar").addEventListener("click", () => cantidad() && copiar(mensaje()));
+  $("#enviarWsp").addEventListener("click", () => {
+    if (!cantidad()) return;
+    lineas().forEach((l) => track("whatsapp", l.p.id));
+    abrirWsp(mensaje());
+  });
+  $("#copiar").addEventListener("click", () => {
+    if (!cantidad()) return;
+    lineas().forEach((l) => track("whatsapp", l.p.id));
+    copiar(mensaje());
+  });
 
   // ---------- Inicio ----------
   $("#fDistrito").innerHTML = `<option value="">Selecciona...</option>` +
@@ -232,15 +349,26 @@
   $("#lnkFb").href = CONFIG.redes.facebook;
   $("#lnkIg").href = CONFIG.redes.instagram;
   $("#lnkTt").href = CONFIG.redes.tiktok;
-  $("#carruselTendencia").innerHTML = PRODUCTOS.filter((p) => p.tendencia).map(tarjeta).join("");
 
-  // Links directos a una categoría: tusitio.com/#navidad  (útil para anuncios y bots)
   const esCat = (h) => CATEGORIAS.some((c) => c.id === h);
-  irACategoria(location.hash.slice(1));
+  function pintarTodo() {
+    $("#carruselTendencia").innerHTML = catalogo.filter((p) => p.tendencia).map(tarjeta).join("");
+    irACategoria(esCat(location.hash.slice(1)) ? location.hash.slice(1) : catActual);
+    pintarCarrito();
+  }
+
+  // 1) Pinta al instante con productos.js  2) Si hay base de datos, vuelve a pintar con lo último
+  pintarTodo();
   if (esCat(location.hash.slice(1))) setTimeout(() => $("#catalogo").scrollIntoView(), 50);
   window.addEventListener("hashchange", () => {
     const h = location.hash.slice(1);
     if (esCat(h)) { irACategoria(h); $("#catalogo").scrollIntoView(); }
   });
-  pintarCarrito();
+  track("visita");
+  cargarDeBD().then(() => {
+    if (SB) pintarTodo();
+    // Link directo a un producto (para posts y anuncios): ?p=id-del-producto
+    const pid = params.get("p");
+    if (pid && porId[pid]) verProducto(pid);
+  });
 })();

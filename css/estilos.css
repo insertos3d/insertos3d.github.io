@@ -233,6 +233,28 @@ main > section { padding: 28px 16px; max-width: 1100px; margin: 0 auto; }
 .galeria { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; background: #000; }
 .galeria::-webkit-scrollbar { display: none; }
 .galeria img { flex: 0 0 100%; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; scroll-snap-align: center; }
+.galeria-wrap { position: relative; }
+.galeria img { cursor: zoom-in; }
+.flecha {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
+  background: rgba(0,0,0,.6); color: #fff; font-size: 1.6rem; line-height: 1; display: grid; place-items: center;
+}
+.flecha:hover { background: rgba(0,0,0,.85); }
+.flecha.prev { left: 10px; }
+.flecha.next { right: 10px; }
+.lupa {
+  position: absolute; left: 10px; bottom: 10px; font-size: .7rem; background: rgba(0,0,0,.6);
+  color: #fff; padding: 3px 8px; border-radius: 999px; pointer-events: none;
+}
+.zoom { position: fixed; inset: 0; z-index: 58; background: rgba(0,0,0,.95); display: grid; place-items: center; }
+.zoom img { max-width: 100vw; max-height: 100vh; object-fit: contain; }
+.zoom .flecha { width: 48px; height: 48px; font-size: 2rem; }
+.zoom-cerrar { position: absolute; top: 14px; right: 14px; z-index: 3; background: rgba(255,255,255,.15); color: #fff; }
+.zoom-cont {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,.15); color: #fff; font-size: .85rem; padding: 4px 12px; border-radius: 999px;
+}
 .puntos { display: flex; justify-content: center; gap: 8px; padding: 10px 0 0; }
 .puntos button { width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 0; background: var(--borde); cursor: pointer; }
 .puntos button.activo { background: var(--verde); width: 22px; border-radius: 4px; }

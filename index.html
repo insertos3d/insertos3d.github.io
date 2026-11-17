@@ -185,10 +185,24 @@
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Fotos del producto" hidden>
   <div class="modal-caja">
     <button class="cerrar modal-cerrar" id="cerrarModal" aria-label="Cerrar">✕</button>
-    <div class="galeria" id="galeria"></div>
+    <div class="galeria-wrap">
+      <div class="galeria" id="galeria" title="Toca para ampliar"></div>
+      <button class="flecha prev" id="galPrev" aria-label="Foto anterior">‹</button>
+      <button class="flecha next" id="galNext" aria-label="Foto siguiente">›</button>
+      <span class="lupa" aria-hidden="true">🔍 Toca para ampliar</span>
+    </div>
     <div class="puntos" id="puntos"></div>
     <div class="modal-info" id="modalInfo"></div>
   </div>
+</div>
+
+<!-- Foto ampliada a pantalla completa -->
+<div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
+  <img id="zoomImg" alt="">
+  <button class="cerrar zoom-cerrar" id="cerrarZoom" aria-label="Cerrar">✕</button>
+  <button class="flecha prev" id="zoomPrev" aria-label="Foto anterior">‹</button>
+  <button class="flecha next" id="zoomNext" aria-label="Foto siguiente">›</button>
+  <div class="zoom-cont" id="zoomCont"></div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

@@ -6,6 +6,11 @@
    ========================================================= */
 
 const CONFIG = {
+  // Base de datos del panel de administrador (Supabase → Project Settings → API).
+  // Vacío = la web usa la lista PRODUCTOS de abajo y no registra métricas.
+  supabaseUrl: "",
+  supabaseKey: "",   // la llave PÚBLICA (publishable / anon). NUNCA la "secret" ni "service_role".
+
   marca: "Insertos 3D",
   eslogan: "Tus Accesorios en 3D",
   // Tu WhatsApp: 51 + número de 9 dígitos, sin espacios ni "+"

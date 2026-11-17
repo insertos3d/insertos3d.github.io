@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel · Insertos 3D</title>
+  <link rel="icon" href="img/marca/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+  <style>
+    body { padding-bottom: 40px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .login { max-width: 360px; margin: 10vh auto; padding: 24px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--tarjeta); display: grid; gap: 12px; text-align: center; }
+    .login img { margin: 0 auto; border-radius: 50%; }
+    input, select, textarea { font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--borde); border-radius: 10px; background: var(--bg-suave); color: var(--texto); width: 100%; }
+    label { display: grid; gap: 4px; font-size: .78rem; color: var(--texto-2); text-align: left; }
+    .error { color: var(--marca); font-size: .85rem; min-height: 1em; margin: 0; }
+    .tabs { display: flex; gap: 6px; overflow-x: auto; }
+    .tab { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--borde); background: var(--bg-suave); color: var(--texto); font: inherit; font-size: .88rem; cursor: pointer; }
+    .tab.activo { background: #fff; color: #0b0b0d; font-weight: 600; }
+    .barra { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+    .barra input, .barra select { width: auto; flex: 1 1 160px; }
+    .fila-p { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+    .fila-p.off { opacity: .5; }
+    .fila-p .mini { width: 56px; height: 56px; border-radius: 10px; background: var(--bg-suave); overflow: hidden; display: grid; place-items: center; }
+    .fila-p .mini img { width: 100%; height: 100%; object-fit: cover; }
+    .fila-p h4 { margin: 0; font-size: .9rem; }
+    .fila-p small { color: var(--texto-2); font-size: .75rem; }
+    .toggles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .tg { font: inherit; font-size: .72rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto-2); cursor: pointer; }
+    .tg.on { background: var(--verde); border-color: var(--verde); color: #0b0b0d; font-weight: 600; }
+    .tg.on.rojo { background: var(--marca); border-color: var(--marca); color: #fff; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0; }
+    .kpi { border: 1px solid var(--borde); border-radius: var(--radio); padding: 12px; background: var(--tarjeta); }
+    .kpi b { display: block; font-size: 1.5rem; }
+    .kpi span { font-size: .78rem; color: var(--texto-2); }
+    .tabla { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .tabla th, .tabla td { padding: 8px 6px; border-bottom: 1px solid var(--borde); text-align: right; }
+    .tabla th:first-child, .tabla td:first-child { text-align: left; }
+    .tabla th { color: var(--texto-2); font-weight: 500; font-size: .75rem; }
+    .scroll { overflow-x: auto; }
+    .nota { font-size: .78rem; color: var(--texto-2); }
+    .editor { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.75); display: grid; place-items: center; padding: 12px; }
+    .editor form { width: min(620px, 100%); max-height: calc(100vh - 24px); overflow-y: auto; background: var(--bg); border: 1px solid var(--borde); border-radius: var(--radio); padding: 18px; display: grid; gap: 10px; }
+    .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .fotos-ed { display: flex; gap: 8px; flex-wrap: wrap; }
+    .fotos-ed figure { margin: 0; position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 2px solid var(--borde); }
+    .fotos-ed figure.principal { border-color: var(--verde); }
+    .fotos-ed img { width: 100%; height: 100%; object-fit: cover; }
+    .fotos-ed figure div { position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-between; background: rgba(0,0,0,.7); }
+    .fotos-ed button { border: 0; background: none; color: #fff; cursor: pointer; font-size: .8rem; padding: 3px 6px; }
+    .checks { display: flex; gap: 14px; flex-wrap: wrap; }
+    .checks label { display: flex; align-items: center; gap: 6px; color: var(--texto); font-size: .85rem; }
+    .checks input { width: 18px; height: 18px; accent-color: var(--verde); }
+    .acciones { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+    .link-out { word-break: break-all; font-size: .85rem; background: var(--bg-suave); padding: 10px; border-radius: 10px; }
+    @media (max-width: 560px) { .tres { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="vLogin" class="login" hidden>
+  <img src="img/marca/logo.png" alt="" width="64" height="64">
+  <h2 style="margin:0">Panel Insertos 3D</h2>
+  <p class="nota" id="sinConfig" hidden>Falta configurar Supabase en <b>js/productos.js</b> (supabaseUrl y supabaseKey).</p>
+  <form id="fLogin" style="display:grid;gap:10px">
+    <label>Correo <input type="email" id="lEmail" autocomplete="username" required></label>
+    <label>Contraseña <input type="password" id="lPass" autocomplete="current-password" required></label>
+    <button class="btn btn-primary" type="submit">Ingresar</button>
+    <p class="error" id="lError"></p>
+  </form>
+</section>
+
+<!-- PANEL -->
+<div id="vPanel" hidden>
+  <header class="top">
+    <a class="brand" href="./" target="_blank" rel="noopener">
+      <img src="img/marca/logo.png" alt="" width="40" height="40">
+      <span><strong>Panel</strong><small>Ver la web ↗</small></span>
+    </a>
+    <button class="btn btn-ghost" id="salir" style="padding:8px 14px">Salir</button>
+  </header>
+  <div class="wrap">
+    <nav class="tabs">
+      <button class="tab activo" data-tab="productos">📦 Productos</button>
+      <button class="tab" data-tab="metricas">📊 Métricas</button>
+      <button class="tab" data-tab="links">🔗 Links para posts</button>
+    </nav>
+
+    <!-- Productos -->
+    <section id="tProductos">
+      <div class="barra">
+        <input type="search" id="pBuscar" placeholder="Buscar producto...">
+        <select id="pCat"></select>
+        <select id="pEstado">
+          <option value="">Todos</option><option value="on">Visibles</option><option value="off">Ocultos</option>
+        </select>
+        <button class="btn btn-primary" id="nuevo">+ Nuevo producto</button>
+      </div>
+      <div id="importar" class="kpi" hidden>
+        <p style="margin:0 0 10px">La base de datos está vacía. ¿Copiamos aquí los productos que hoy tiene la web?</p>
+        <button class="btn btn-primary" id="btnImportar">Importar catálogo actual</button>
+      </div>
+      <p class="nota">Toca las etiquetas para activarlas o desactivarlas. Los cambios se ven en la web al recargarla. 👁 vistas · 💬 clics a WhatsApp (últimos 30 días).</p>
+      <div id="lista"></div>
+    </section>
+
+    <!-- Métricas -->
+    <section id="tMetricas" hidden>
+      <div class="barra">
+        <select id="mDias">
+          <option value="7">Últimos 7 días</option><option value="30" selected>Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option><option value="0">Todo</option>
+        </select>
+        <button class="btn btn-ghost" id="mRecargar">↻ Actualizar</button>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <h3>Por producto</h3>
+      <div class="scroll"><table class="tabla" id="tablaProd"></table></div>
+      <h3 style="margin-top:24px">Por origen / publicación</h3>
+      <div class="scroll"><table class="tabla" id="tablaOrigen"></table></div>
+      <p class="nota">💬 WhatsApp = clics en “Enviar pedido” o “Copiar mensaje”. WhatsApp no informa si el mensaje se envió: compáralo con tus chats. “Origen” sale del link usado (<code>?src=</code>) o de la red social desde donde llegaron.</p>
+    </section>
+
+    <!-- Links -->
+    <section id="tLinks" hidden>
+      <p class="nota">Crea un link distinto para cada publicación. Así en Métricas verás qué post trajo visitas y pedidos.</p>
+      <div class="dos" style="margin:12px 0">
+        <label>Nombre de la publicación <input id="kSrc" placeholder="ej: reel-galleta-ig"></label>
+        <label>¿A dónde lleva?
+          <select id="kDestino"></select>
+        </label>
+      </div>
+      <div class="link-out" id="kLink"></div>
+      <div class="barra"><button class="btn btn-primary" id="kCopiar">Copiar link</button></div>
+      <p class="nota">Sugerencia de nombres: <b>red-tipo-producto</b> → ig-reel-galleta, fb-post-nacimiento, tt-video-papa, wsp-estado-navidad.</p>
+    </section>
+  </div>
+</div>
+
+<!-- EDITOR DE PRODUCTO -->
+<div class="editor" id="editor" hidden>
+  <form id="fEditor">
+    <h2 style="margin:0" id="eTitulo">Producto</h2>
+    <label>Nombre <input id="eNombre" required></label>
+    <div class="dos">
+      <label>Categoría <select id="eCategoria"></select></label>
+      <label>Precio (S/, sin IGV) <input id="ePrecio" type="number" step="0.01" min="0" required></label>
+    </div>
+    <div class="tres">
+      <label>Por mayor desde (u.) <input id="eMayorDesde" type="number" min="0"></label>
+      <label>Precio por mayor (S/) <input id="eMayorPrecio" type="number" step="0.01" min="0"></label>
+      <label>Precio especial desde (u.) <input id="eMayorConsultar" type="number" min="0" placeholder="a consultar"></label>
+    </div>
+    <label>Descripción <textarea id="eDesc" rows="3"></textarea></label>
+    <div class="checks">
+      <label><input type="checkbox" id="eActivo"> Visible</label>
+      <label><input type="checkbox" id="eTendencia"> Tendencia</label>
+      <label><input type="checkbox" id="eTemporada"> Temporada</label>
+      <label><input type="checkbox" id="eNuevo"> Nuevo</label>
+      <label><input type="checkbox" id="eAgotado"> Agotado</label>
+      <label><input type="checkbox" id="eCotizar"> Botón “Cotizar”</label>
+    </div>
+    <label>Orden (menor = aparece primero) <input id="eOrden" type="number"></label>
+    <div>
+      <p class="nota" style="margin:0 0 6px">Fotos (★ = principal). Se achican automáticamente antes de subir.</p>
+      <div class="fotos-ed" id="eFotos"></div>
+      <label class="btn btn-ghost" style="margin-top:8px;display:inline-flex;cursor:pointer">📷 Subir fotos
+        <input type="file" id="eSubir" accept="image/*" multiple hidden>
+      </label>
+      <span class="nota" id="eSubiendo"></span>
+    </div>
+    <p class="error" id="eError"></p>
+    <div class="acciones">
+      <button type="button" class="btn btn-ghost" id="eBorrar" style="color:var(--marca)">Eliminar</button>
+      <span style="display:flex;gap:8px">
+        <button type="button" class="btn btn-ghost" id="eCancelar">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </span>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
