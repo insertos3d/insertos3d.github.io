@@ -225,7 +225,26 @@
     if (!fotosAct.length) return;
     fotoIdx = vuelta(i);
     const g = $("#galeria"); g.scrollTo({ left: g.clientWidth * fotoIdx, behavior: "smooth" });
+    marcaGaleria();
   }
+  // Coloca el logo en la esquina superior derecha de la FOTO (no de las franjas negras).
+  // La foto usa object-fit: contain, así que se calcula el área real que ocupa.
+  function marcaGaleria() {
+    const g = $("#galeria"), img = g.querySelectorAll("img")[fotoIdx], m = $(".galeria-wrap .marca-agua");
+    if (!img || !m) return;
+    const W = g.clientWidth, H = img.clientHeight || g.clientHeight;
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    let dx = 0, dy = 0;
+    if (nw && nh) {
+      const s = Math.min(W / nw, H / nh);
+      dx = (W - nw * s) / 2; dy = (H - nh * s) / 2;
+    }
+    // Si la esquina de la foto coincide con el botón ✕ del modal, bajar el logo
+    const top = dy + 10 < 52 && dx < 52 ? 56 : dy + 10;
+    m.style.top = `${Math.round(top)}px`;
+    m.style.right = `${Math.round(dx + 10)}px`;
+  }
+  window.addEventListener("resize", marcaGaleria);
   function pintarZoom() {
     $("#zoomImg").src = fotosAct[zoomIdx];
     $("#zoomImg").alt = `Foto ${zoomIdx + 1}`;
@@ -248,6 +267,7 @@
     $("#galPrev").hidden = $("#galNext").hidden = imgs.length < 2;
     $("#galeria").innerHTML = imgs.map((src, i) => `<img src="${src}" alt="${p.nombre} foto ${i + 1}">`).join("");
     $("#galeria").scrollLeft = 0;
+    $("#galeria").querySelectorAll("img").forEach((im) => im.addEventListener("load", marcaGaleria));
     $("#puntos").innerHTML = imgs.length > 1 ? imgs.map((_, i) => `<button data-punto="${i}" aria-label="Foto ${i + 1}" class="${i ? "" : "activo"}"></button>`).join("") : "";
     $("#modalInfo").innerHTML = `
       <h3>${p.nombre}</h3>
@@ -260,11 +280,12 @@
       ${p.cotizar ? `<button class="btn btn-ghost cotizar-prod" data-cotizar-prod="${p.id}">Cotizar tamaño o cantidad</button>` : ""}`;
     $("#modal").hidden = false;
     document.body.style.overflow = "hidden";
+    marcaGaleria();
   }
   function cerrarModal() { $("#modal").hidden = true; document.body.style.overflow = ""; }
   $("#galeria").addEventListener("scroll", () => {
     const g = $("#galeria"), i = Math.round(g.scrollLeft / g.clientWidth);
-    fotoIdx = i;
+    if (i !== fotoIdx) { fotoIdx = i; marcaGaleria(); }
     document.querySelectorAll("#puntos button").forEach((b, j) => b.classList.toggle("activo", i === j));
   });
   $("#puntos").addEventListener("click", (e) => {

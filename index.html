@@ -215,8 +215,10 @@
 
 <!-- Foto ampliada a pantalla completa -->
 <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
-  <img id="zoomImg" alt="">
-  <img class="marca-agua marca-zoom" src="img/marca/logo.png" alt="" aria-hidden="true">
+  <div class="zoom-marco">
+    <img id="zoomImg" alt="">
+    <img class="marca-agua marca-zoom" src="img/marca/logo.png" alt="" aria-hidden="true">
+  </div>
   <button class="cerrar zoom-cerrar" id="cerrarZoom" aria-label="Cerrar">✕</button>
   <button class="flecha prev" id="zoomPrev" aria-label="Foto anterior">‹</button>
   <button class="flecha next" id="zoomNext" aria-label="Foto siguiente">›</button>
