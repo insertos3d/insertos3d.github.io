@@ -15,6 +15,16 @@
     clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("ver"), 2400);
   }
 
+  // ---------- "Ojito" para ver la contraseña ----------
+  $("#verPass").addEventListener("click", () => {
+    const inp = $("#lPass"), ver = inp.type === "password";
+    inp.type = ver ? "text" : "password";
+    $("#verPass").setAttribute("aria-pressed", String(ver));
+    $("#verPass").setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
+    $("#verPass").title = ver ? "Ocultar contraseña" : "Mostrar contraseña";
+    inp.focus();
+  });
+
   // ---------- Conexión ----------
   if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey || !window.supabase) {
     $("#vLogin").hidden = false; $("#sinConfig").hidden = false; $("#fLogin").hidden = true;
@@ -39,10 +49,51 @@
     await Promise.all([cargarProductos(), cargarMet30()]);
     pintarLista(); pintarDestinos(); pintarLink();
   }
+  // Espera progresiva tras intentos fallidos (frena pruebas a mano en este navegador).
+  // La protección real está en el servidor (límite por IP de Supabase) y en la contraseña fuerte.
+  const BLOQ_KEY = "panel3d-intentos";
+  const leerBloq = () => { try { return JSON.parse(localStorage.getItem(BLOQ_KEY)) || { fallos: 0, hasta: 0 }; } catch (e) { return { fallos: 0, hasta: 0 }; } };
+  const guardarBloq = (b) => { try { localStorage.setItem(BLOQ_KEY, JSON.stringify(b)); } catch (e) {} };
+  let tBloq = null;
+  function mostrarBloqueo() {
+    clearInterval(tBloq);
+    const tick = () => {
+      const s = Math.ceil((leerBloq().hasta - Date.now()) / 1000);
+      const boton = $("#lBoton");
+      if (s > 0) {
+        boton.disabled = true;
+        boton.textContent = `Espera ${s >= 60 ? Math.ceil(s / 60) + " min" : s + " s"}`;
+        $("#lError").textContent = "Demasiados intentos fallidos. Por seguridad, espera antes de volver a intentar.";
+      } else {
+        clearInterval(tBloq); boton.disabled = false; boton.textContent = "Ingresar";
+      }
+    };
+    tick(); tBloq = setInterval(tick, 1000);
+  }
+  if (leerBloq().hasta > Date.now()) mostrarBloqueo();
+
   $("#fLogin").addEventListener("submit", async (e) => {
     e.preventDefault(); $("#lError").textContent = "";
+    if (leerBloq().hasta > Date.now()) return mostrarBloqueo();
+    $("#lBoton").disabled = true; $("#lBoton").textContent = "Ingresando…";
     const { error } = await sb.auth.signInWithPassword({ email: $("#lEmail").value.trim(), password: $("#lPass").value });
-    if (error) { $("#lError").textContent = "Correo o contraseña incorrectos."; return; }
+    $("#lBoton").disabled = false; $("#lBoton").textContent = "Ingresar";
+    if (error) {
+      if (error.status === 429 || /rate limit|too many/i.test(error.message || "")) {
+        $("#lError").textContent = "Demasiados intentos desde tu conexión. Espera unos minutos y vuelve a intentar.";
+        return;
+      }
+      const b = leerBloq(); b.fallos += 1;
+      // A partir del 3.er fallo: 30 s, 1 min, 2 min, 4 min… hasta 15 min
+      if (b.fallos >= 3) { b.hasta = Date.now() + Math.min(30000 * 2 ** (b.fallos - 3), 15 * 60000); }
+      guardarBloq(b);
+      $("#lError").textContent = "Correo o contraseña incorrectos." + (b.fallos >= 3 ? "" : ` (intento ${b.fallos} de 3)`);
+      $("#lPass").value = "";
+      if (b.hasta > Date.now()) mostrarBloqueo();
+      return;
+    }
+    guardarBloq({ fallos: 0, hasta: 0 });
+    $("#lPass").value = ""; $("#lPass").type = "password"; $("#verPass").setAttribute("aria-pressed", "false");
     entrar();
   });
   $("#salir").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });

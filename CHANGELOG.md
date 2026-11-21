@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.6.2] - 2026-11-21
+### Agregado
+- Login del panel: botón “ojito” para mostrar/ocultar la contraseña.
+- Login del panel: espera progresiva tras 3 intentos fallidos (30 s → 15 min) y aviso si Supabase limita por IP.
+
 ## [1.6.1] - 2026-11-21
 ### Corregido
 - Panel: no se puede guardar mientras se suben fotos (antes un producto podía quedar sin fotos desde el celular).

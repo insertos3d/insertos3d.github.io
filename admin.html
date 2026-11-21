@@ -18,6 +18,11 @@
     input, select, textarea { font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--borde); border-radius: 10px; background: var(--bg-suave); color: var(--texto); width: 100%; }
     label { display: grid; gap: 4px; font-size: .78rem; color: var(--texto-2); text-align: left; }
     .error { color: var(--marca); font-size: .85rem; min-height: 1em; margin: 0; }
+    .pass-wrap { position: relative; display: block; }
+    .pass-wrap input { padding-right: 46px; }
+    .ver-pass { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: 0; border-radius: 8px; background: transparent; color: var(--texto-2); cursor: pointer; display: grid; place-items: center; }
+    .ver-pass:hover, .ver-pass[aria-pressed="true"] { color: var(--texto); background: var(--bg); }
+    .ver-pass[aria-pressed="true"] svg { opacity: .55; }
     .tabs { display: flex; gap: 6px; overflow-x: auto; }
     .tab { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--borde); background: var(--bg-suave); color: var(--texto); font: inherit; font-size: .88rem; cursor: pointer; }
     .tab.activo { background: #fff; color: #0b0b0d; font-weight: 600; }
@@ -88,9 +93,16 @@
   <p class="nota" id="sinConfig" hidden>Falta configurar Supabase en <b>js/productos.js</b> (supabaseUrl y supabaseKey).</p>
   <form id="fLogin" style="display:grid;gap:10px">
     <label>Correo <input type="email" id="lEmail" autocomplete="username" required></label>
-    <label>Contraseña <input type="password" id="lPass" autocomplete="current-password" required></label>
-    <button class="btn btn-primary" type="submit">Ingresar</button>
-    <p class="error" id="lError"></p>
+    <label>Contraseña
+      <span class="pass-wrap">
+        <input type="password" id="lPass" autocomplete="current-password" required>
+        <button type="button" class="ver-pass" id="verPass" aria-label="Mostrar contraseña" aria-pressed="false" title="Mostrar contraseña">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5Zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9Zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z"/></svg>
+        </button>
+      </span>
+    </label>
+    <button class="btn btn-primary" type="submit" id="lBoton">Ingresar</button>
+    <p class="error" id="lError" role="alert"></p>
   </form>
 </section>
 

@@ -60,6 +60,10 @@ RLS está activo en **todas** las tablas. Roles: `anon` (visitante) y `authentic
 
 Otras medidas:
 - Registro público de usuarios **desactivado** (`disable_signup = true`); los admins se crean desde el dashboard.
+- Intentos de inicio de sesión: Supabase limita por IP (no bloquea la cuenta). El panel añade una espera
+  progresiva en el navegador tras 3 fallos (30 s, 1, 2, 4… hasta 15 min). Es un freno, no la defensa principal:
+  la defensa es la contraseña fuerte + registro cerrado + RLS (y 2FA si se activa).
+- La URL `/admin.html` no es secreta a propósito: ocultarla no aporta seguridad real.
 - Contraseñas: mínimo 10 caracteres con minúscula, mayúscula y número. La protección contra contraseñas filtradas
   (HaveIBeenPwned) requiere plan Pro: es el único aviso del Security Advisor y es esperado en plan Free.
 - Políticas con `(select auth.uid())` / `(select public.es_admin())` para que Postgres las evalúe **una vez por consulta**
