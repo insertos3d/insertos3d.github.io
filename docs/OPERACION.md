@@ -71,3 +71,12 @@ Usa un link distinto por publicación o anuncio para comparar resultados en *Mé
 ## Configuración de la web (`js/productos.js → CONFIG`)
 WhatsApp, distritos de entrega, día de entrega, redes sociales, IGV, adelanto (50 %), texto de tiempo de preparación
 y conexión a Supabase. Cambios aquí requieren `git push` (se publica en ~1 min).
+
+## Catálogo de Facebook / Instagram / WhatsApp (Meta)
+- Feed: **https://insertos3d.com/catalogo/meta.csv** (lo genera `scripts/catalogo_meta.py`).
+- Se actualiza solo con GitHub Actions (*Catálogo Meta*): cada 6 h y en cada cambio de la web. Para forzarlo:
+  GitHub → pestaña **Actions** → *Catálogo Meta* → **Run workflow**.
+- Incluye solo productos **visibles y con al menos una foto** (Meta rechaza productos sin imagen).
+- Las fotos se convierten a JPG (mín. 500 px) en `catalogo/img/`. Los links llevan `?src=meta-catalogo`
+  para verlos en *Métricas → Por origen*.
+- En Meta Commerce Manager el catálogo usa una **fuente de datos programada** (diaria) con esa URL, moneda PEN.

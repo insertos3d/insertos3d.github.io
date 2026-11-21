@@ -48,6 +48,9 @@
 | `supabase/migrations/` | Esquema de base de datos versionado (`<versión>_<nombre>.sql`) |
 | `supabase/seed/` | Scripts manuales (p. ej. agregar un administrador) |
 | `docs/` | Documentación técnica y de operación |
+| `scripts/catalogo_meta.py` | Genera el catálogo de Meta desde Supabase |
+| `catalogo/` | Catálogo para Facebook/Instagram (generado automáticamente, no editar a mano) |
+| `.github/workflows/` | Tareas automáticas (catálogo de Meta cada 6 h) |
 
 ## Documentación
 

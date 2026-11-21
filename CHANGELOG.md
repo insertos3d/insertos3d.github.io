@@ -2,6 +2,11 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.7.0] - 2026-11-21
+### Agregado
+- Catálogo de Meta (Facebook/Instagram/WhatsApp): `catalogo/meta.csv` generado desde Supabase,
+  fotos JPG compatibles y sincronización automática con GitHub Actions cada 6 h.
+
 ## [1.6.2] - 2026-11-21
 ### Agregado
 - Login del panel: botón “ojito” para mostrar/ocultar la contraseña.
