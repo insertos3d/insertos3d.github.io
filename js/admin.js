@@ -261,7 +261,8 @@
     $("#eOrden").value = p ? p.orden : (productos.length ? Math.min(...productos.map((x) => x.orden)) - 10 : 10);
     fotosEd = p ? [p.img, ...(p.fotos || [])].filter(Boolean) : [];
     $("#eBorrar").hidden = !p;
-    $("#eError").textContent = ""; $("#eSubiendo").textContent = "";
+    $("#eError").textContent = ""; $("#eSubiendo").textContent = ""; $("#eFotoError").textContent = "";
+    subiendo = 0; estadoSubida();
     pintarFotosEd();
     $("#editor").hidden = false;
   }
@@ -287,12 +288,28 @@
   const logo = new Image();
   logo.src = "img/marca/logo.png";
 
-  // Achica la foto (máx. 1200 px), pone el logo en la esquina y la convierte a WebP
+  // Abre la foto con el método disponible (algunos celulares fallan con createImageBitmap)
+  async function decodificar(file) {
+    try { return await createImageBitmap(file); } catch (e) { /* se intenta con <img> */ }
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      return img;
+    } catch (e) {
+      throw new Error("el formato de la foto no es compatible. En iPhone: Ajustes → Cámara → Formatos → “Más compatible”.");
+    } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  }
+  const aBlob = (c, tipo, q) => new Promise((res) => c.toBlob(res, tipo, q));
+
+  // Achica la foto (máx. 1200 px), pone el logo en la esquina y la convierte a WebP (o JPG si el celular no soporta WebP)
   async function achicar(file, conMarca) {
-    const bmp = await createImageBitmap(file);
-    const r = Math.min(1, 1200 / Math.max(bmp.width, bmp.height));
+    const bmp = await decodificar(file);
+    const w0 = bmp.width || bmp.naturalWidth, h0 = bmp.height || bmp.naturalHeight;
+    const r = Math.min(1, 1200 / Math.max(w0, h0));
     const c = document.createElement("canvas");
-    c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+    c.width = Math.round(w0 * r); c.height = Math.round(h0 * r);
     const ctx = c.getContext("2d");
     ctx.drawImage(bmp, 0, 0, c.width, c.height);
     if (conMarca && logo.complete && logo.naturalWidth) {
@@ -304,29 +321,64 @@
       ctx.drawImage(logo, cx - t / 2, cy - t / 2, t, t);
       ctx.restore();
     }
-    return new Promise((res) => c.toBlob(res, "image/webp", 0.82));
+    // WebP si el navegador lo soporta; si no (iPhone antiguo), JPG. Nunca PNG: pesa demasiado.
+    let blob = await aBlob(c, "image/webp", 0.82);
+    if (!blob || blob.type !== "image/webp") blob = await aBlob(c, "image/jpeg", 0.85);
+    if (!blob) throw new Error("el celular no pudo procesar la foto (memoria). Prueba con una foto más pequeña.");
+    return blob;
+  }
+
+  // Traduce los errores técnicos a mensajes claros
+  function errorAmigable(err) {
+    const m = String((err && (err.message || err.error)) || err || "");
+    if (/mime|content.?type/i.test(m)) return "formato no permitido (usa JPG, PNG o WebP).";
+    if (/size|exceed|too large|413/i.test(m)) return "la foto pesa más de 5 MB.";
+    if (/row-level|security|unauthor|403|401|jwt/i.test(m)) return "tu sesión venció o no tienes permiso. Sal del panel y vuelve a entrar.";
+    if (/network|fetch|failed to fetch|timeout/i.test(m)) return "sin conexión o conexión lenta. Revisa tu internet e inténtalo otra vez.";
+    return m || "error desconocido.";
+  }
+
+  let subiendo = 0; // fotos en proceso: mientras sea > 0 no se puede guardar
+  function estadoSubida() {
+    const b = $("#fEditor button[type=submit]");
+    b.disabled = subiendo > 0;
+    b.textContent = subiendo > 0 ? "Subiendo fotos…" : "Guardar";
   }
   $("#eSubir").addEventListener("change", async (e) => {
     const files = [...e.target.files]; e.target.value = "";
-    const carpeta = slug($("#eNombre").value) || "sin-nombre";
+    if (!files.length) return;
+    const carpeta = slug($("#eId").value || $("#eNombre").value) || "sin-nombre";
+    const errores = [];
+    subiendo += files.length; estadoSubida();
+    $("#eFotoError").textContent = "";
     for (let i = 0; i < files.length; i++) {
-      $("#eSubiendo").textContent = `Subiendo ${i + 1} de ${files.length}...`;
+      $("#eSubiendo").textContent = `⏳ Subiendo foto ${i + 1} de ${files.length}… no cierres ni guardes todavía`;
       try {
         const blob = await achicar(files[i], $("#eMarca").checked);
-        const ext = blob.type === "image/webp" ? "webp" : "png";
+        const ext = blob.type === "image/webp" ? "webp" : "jpg";
         // "-logo" en el nombre = la foto ya trae el logo grabado (la web no le pone el logo flotante encima)
         const ruta = `${carpeta}/${Date.now()}-${i}${$("#eMarca").checked ? "-logo" : ""}.${ext}`;
-        const { error } = await sb.storage.from("productos").upload(ruta, blob, { contentType: blob.type });
+        const { error } = await sb.storage.from("productos").upload(ruta, blob, { contentType: blob.type, cacheControl: "31536000" });
         if (error) throw error;
         fotosEd.push(sb.storage.from("productos").getPublicUrl(ruta).data.publicUrl);
         pintarFotosEd();
-      } catch (err) { $("#eError").textContent = "No se pudo subir una foto: " + (err.message || err); }
+      } catch (err) {
+        errores.push(`Foto ${i + 1} (${files[i].name || "sin nombre"}): ${errorAmigable(err)}`);
+      } finally {
+        subiendo--; estadoSubida();
+      }
     }
-    $("#eSubiendo").textContent = "";
+    $("#eSubiendo").textContent = errores.length ? "" : `✓ ${files.length} foto(s) lista(s). Ahora presiona Guardar.`;
+    if (errores.length) {
+      $("#eFotoError").textContent = "⚠️ No se pudo subir:\n" + errores.join("\n");
+      alert("⚠️ Algunas fotos no se subieron:\n\n" + errores.join("\n"));
+    }
   });
 
   $("#fEditor").addEventListener("submit", async (e) => {
     e.preventDefault(); $("#eError").textContent = "";
+    if (subiendo > 0) { $("#eError").textContent = "Espera a que terminen de subir las fotos."; return; }
+    if (!fotosEd.length && !confirm("Este producto no tiene fotos y en la web se verá solo un ícono.\n\n¿Guardar de todas formas?")) return;
     const num = (s) => ($(s).value === "" ? null : Number($(s).value));
     const fila = {
       nombre: $("#eNombre").value.trim(), categoria: $("#eCategoria").value, precio: num("#ePrecio") || 0,

@@ -2,6 +2,13 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Fechas en AAAA-MM-DD.
 
+## [1.6.1] - 2026-11-21
+### Corregido
+- Panel: no se puede guardar mientras se suben fotos (antes un producto podía quedar sin fotos desde el celular).
+- Panel: los errores de subida ya no se borran al guardar; se muestran con mensaje claro y alerta.
+- Panel: subida más robusta en celulares (decodificación alternativa; JPG si el navegador no soporta WebP, nunca PNG).
+- Panel: aviso al guardar un producto sin fotos.
+
 ## [1.6.0] - 2026-11-17
 ### Cambiado
 - Dominio propio **insertos3d.com** (Cloudflare Registrar, DNS only → GitHub Pages). `insertos3d.github.io` redirige.
